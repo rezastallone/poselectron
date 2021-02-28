@@ -31,6 +31,10 @@ module.exports = {
     port: 4000,
     publicPath: '/'
   },
+  node: {
+    __dirname: false,
+    __filename: false,
+  },
   output: {
     path: path.resolve(rootPath, 'dist/renderer'),
     filename: 'js/[name].js',
