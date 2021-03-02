@@ -5,8 +5,9 @@ import { RupiahTextView } from '../kasir/RupiahTextView';
 import { Input } from 'react-rainbow-components';
 import { Picklist, Option, RenderIf } from 'react-rainbow-components';
 import NumberFormat, { NumberFormatProps } from 'react-number-format';
-import './CheckoutBayar.css'
+import './Checkout.css'
 import { GenericActionView } from '../kasir/GenericActionView';
+import { PaymentMethod } from './CheckoutView';
 
 interface PaymentOptions {
   name: string | undefined | number
@@ -17,6 +18,8 @@ export const CheckoutBayar: React.FC<any & ProductListProp> = (props: any) => {
 
   const { paymentMethods, setPaymentMethods } = props
 
+  const { cart, onBayar, onBatal } = props;
+
   const inputStyles = {
     width: 300,
   };
@@ -24,8 +27,6 @@ export const CheckoutBayar: React.FC<any & ProductListProp> = (props: any) => {
   const containerStyles = {
     width: '200px',
   };
-
-  const { cart, onBayar } = props;
 
   let initPaymentOption: PaymentOptions = {
     name: 'option 1', label: 'Cash'
@@ -245,13 +246,14 @@ export const CheckoutBayar: React.FC<any & ProductListProp> = (props: any) => {
       </div>
       <div className="rainbow-align-content_space-between">
         <Button
-          onClick={() => { }}
+          onClick={() => { onBatal() }}
         >
           Batal
         </Button>
 
         <Button
-          onClick={() => { isCanPay() }}
+          onClick={() => { onBayar() }}
+          disabled={!isCanPay()}
         >
           Bayar
         </Button>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Cart } from '../kasir/Cart'
-import { Modal, Button } from 'react-rainbow-components';
+import { Modal } from 'react-rainbow-components';
 import { Path, PathStep } from 'react-rainbow-components';
 import { Route, Switch, useRouteMatch } from "react-router-dom";
 import { ProductListProp } from '../kasir/ProductListView';
@@ -40,13 +40,13 @@ export const CheckoutModalView: React.FC<any & ProductListProp> = (props: any) =
     return setIsOpen(false)
   }
 
-  useEffect(() => {
-    setStep("1")
-  }, [])
-
   function setStep(stepName: string) {
     setPage(stepName)
-    history.push(`${url}/checkout/${stepName}`)
+    if (stepName == "1") {
+      history.push(`${path}`)
+    } else {
+      history.push(`${path}/checkout/${stepName}`)
+    }
   }
 
   return (
@@ -54,7 +54,7 @@ export const CheckoutModalView: React.FC<any & ProductListProp> = (props: any) =
       <Modal id="modal-1" isOpen={isOpen} onRequestClose={handleOnClose} size="large">
         <div className="rainbow-p-around_large">
 
-          <Path currentStepName={page} onClick={setStep}>
+          <Path currentStepName={page}>
             <PathStep name="1" label="Konfirmasi Pesanan" />
             <PathStep name="2" label="Pembayaran" />
             <PathStep name="3" label="Pesanan Sukses" />
@@ -62,7 +62,9 @@ export const CheckoutModalView: React.FC<any & ProductListProp> = (props: any) =
         </div>
 
         <Switch>
-          <Route path={`${path}/checkout/1`}>
+          <Route
+            path={`${path}`}
+          >
             <CheckoutKonfirm
               setCart={(cart: Cart) => {
                 setCart(cart)
@@ -74,7 +76,6 @@ export const CheckoutModalView: React.FC<any & ProductListProp> = (props: any) =
             />
           </Route>
           <Route path={`${path}/checkout/2`}>
-
             <CheckoutBayar
               cart={cart}
               paymentMethods={paymentMethods}
@@ -82,20 +83,19 @@ export const CheckoutModalView: React.FC<any & ProductListProp> = (props: any) =
               onBayar={() => {
                 setStep("3")
               }}
+              onBatal={() => {
+                setStep("1")
+              }}
             />
-
           </Route>
           <Route path={`${path}/checkout/3`}>
             <CheckoutStruk
               cart={cart}
               paymentMethods={paymentMethods}
             >
-
             </CheckoutStruk>
           </Route>
-
         </Switch>
-
       </Modal>
     </div>
   )

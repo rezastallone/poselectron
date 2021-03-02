@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import { MdShoppingCart } from 'react-icons/md';
 import { SidebarItem, Sidebar, VerticalNavigation, VerticalSection, VerticalItem } from 'react-rainbow-components';
 import { useHistory } from "react-router-dom";
-import {Redirect, Route, Switch, useRouteMatch} from "react-router-dom";
+import { Redirect, Route, Switch, useRouteMatch } from "react-router-dom";
 import styled from 'styled-components';
 import { KasirView } from '../kasir/KasirView';
 import './MainNav.css'
@@ -15,9 +16,8 @@ const StyledContainer = styled.div.attrs(props => {
     border-right: 1px solid ${props => props.border.divider};
 `;
 
-
 export const SimpleVerticalNavigation: React.FC<any> = (props: any) => {
-    
+
     const [selectedItem, setSelectedItem] = useState("penjualan")
     const history = useHistory();
     let { path, url } = useRouteMatch();
@@ -39,17 +39,11 @@ export const SimpleVerticalNavigation: React.FC<any> = (props: any) => {
                     className="react-rainbow-admin-app_sidebar">
 
                     <SidebarItem
+                        icon={<MdShoppingCart />}
                         className="react-rainbow-admin-app_sidebar-item"
                         name="penjualan"
-                        label="Calendar"
+                        label="Penjualan"
                         onClick={() => history.push(`${url}/penjualan`)} />
-
-                    <SidebarItem
-                        className="react-rainbow-admin-app_sidebar-item"
-                        name="mymeeting"
-                        label="My Meeting"
-                        onClick={() => history.push(`${url}/mymeeting`)} />
-
                 </Sidebar>
             </div>
 
