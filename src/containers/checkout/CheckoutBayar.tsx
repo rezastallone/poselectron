@@ -13,14 +13,9 @@ interface PaymentOptions {
   label: string | undefined
 }
 
-interface PaymentMethod {
-  id: string
-  type: number
-  total: number
-  cardNumber: string
-}
-
 export const CheckoutBayar: React.FC<any & ProductListProp> = (props: any) => {
+
+  const { paymentMethods, setPaymentMethods } = props
 
   const inputStyles = {
     width: 300,
@@ -36,13 +31,9 @@ export const CheckoutBayar: React.FC<any & ProductListProp> = (props: any) => {
     name: 'option 1', label: 'Cash'
   }
 
-  let initPaymentMethod: PaymentMethod[] = []
-
   const [paymentId, setPaymentId] = useState(1)
 
   const [paymentOption, setPaymentOption] = useState(initPaymentOption)
-
-  const [paymentMethods, setPaymentMethods] = useState(initPaymentMethod)
 
   const [uangDiterima, setUangDiterima] = useState(0);
 

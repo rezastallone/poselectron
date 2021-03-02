@@ -14,7 +14,19 @@ export interface CheckoutProps {
   setIsOpen: any
 }
 
+export interface PaymentMethod {
+  id: string
+  type: number
+  total: number
+  cardNumber: string
+}
+
+
 export const CheckoutModalView: React.FC<any & ProductListProp> = (props: any) => {
+
+  let initPaymentMethod: PaymentMethod[] = []
+
+  const [paymentMethods, setPaymentMethods] = useState(initPaymentMethod)
 
   const { isOpen, setIsOpen, cart, setCart } = props
 
@@ -63,18 +75,23 @@ export const CheckoutModalView: React.FC<any & ProductListProp> = (props: any) =
           </Route>
           <Route path={`${path}/checkout/2`}>
 
-          <CheckoutBayar
-            cart={cart}
-            onBayar={() => {
-              setStep("3")
-            }}
-          />
+            <CheckoutBayar
+              cart={cart}
+              paymentMethods={paymentMethods}
+              setPaymentMethods={setPaymentMethods}
+              onBayar={() => {
+                setStep("3")
+              }}
+            />
 
           </Route>
           <Route path={`${path}/checkout/3`}>
-              <CheckoutStruk>
+            <CheckoutStruk
+              cart={cart}
+              paymentMethods={paymentMethods}
+            >
 
-              </CheckoutStruk>
+            </CheckoutStruk>
           </Route>
 
         </Switch>

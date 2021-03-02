@@ -3,8 +3,6 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const rootPath = path.resolve(__dirname, '..')
-const port = process.env.PORT || 4000;
-const publicPath = `http://localhost:${port}/`;
 
 module.exports = {
   resolve: {
@@ -34,8 +32,12 @@ module.exports = {
   },
   devServer: {
     contentBase: path.join(rootPath, 'dist/renderer'),
+    historyApiFallback: true,
     compress: true,
     hot: true,
+    host: '0.0.0.0',
+    port: 4000,
+    publicPath: '/'
   },
   node: {
     __dirname: false,

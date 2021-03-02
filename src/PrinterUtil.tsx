@@ -3,6 +3,80 @@ import { getAsset } from './PathUtil'
 let dir = getAsset(["img_test.png"])
 const { PosPrinter } = require('electron').remote.require("electron-pos-printer");
 
+const printData = [
+    {
+        type: 'image',
+        path: dir,     // file path
+        position: 'center',                                  // position of image: 'left' | 'center' | 'right'
+        width: '60px',                                           // width of image in px; default: auto
+        height: '60px',                                          // width of image in px; default: 50 or '50px'
+    }, {
+        type: 'text',                                       // 'text' | 'barCode' | 'qrCode' | 'image' | 'table
+        value: 'SAMPLE HEADING',
+        style: `text-align:center;`,
+        css: { "font-weight": "700", "font-size": "18px" }
+    }, {
+        type: 'text',                       // 'text' | 'barCode' | 'qrCode' | 'image' | 'table'
+        value: 'Secondary text',
+        style: `text-align:left;color: red;`,
+        css: { "text-decoration": "underline", "font-size": "10px" }
+    }, {
+        type: 'barCode',
+        value: 'HB4587896',
+        height: 12,                     // height of barcode, applicable only to bar and QR codes
+        width: 1,                       // width of barcode, applicable only to bar and QR codes
+        displayValue: true,             // Display value below barcode
+        fontsize: 8,
+    }, {
+        type: 'qrCode',
+        value: 'https://github.com/Hubertformin/electron-pos-printer',
+        height: 55,
+        width: 55,
+        style: 'margin: 10 20px 20 20px'
+    }, {
+        type: 'table',
+        // style the table
+        style: 'border: 1px solid #ddd',
+        // list of the columns to be rendered in the table header
+        tableHeader: ['Animal', 'Age'],
+        // multi dimensional array depicting the rows and columns of the table body
+        tableBody: [
+            ['Cat', 2],
+            ['Dog', 4],
+            ['Horse', 12],
+            ['Pig', 4],
+        ],
+        // list of columns to be rendered in the table footer
+        tableFooter: ['Animal', 'Age'],
+        // custom style for the table header
+        tableHeaderStyle: 'background-color: #000; color: white;',
+        // custom style for the table body
+        tableBodyStyle: 'border: 0.5px solid #ddd',
+        // custom style for the table footer
+        tableFooterStyle: 'background-color: #000; color: white;',
+    }, {
+        type: 'table',
+        style: 'border: 1px solid #ddd',             // style the table
+        // list of the columns to be rendered in the table header
+        tableHeader: [{ type: 'text', value: 'Animal' }, { type: 'image', path: dir }],
+        // multi dimensional array depicting the rows and columns of the table body
+        tableBody: [
+            [{ type: 'text', value: 'Cat' }, { type: 'image', path: './animals/cat.jpg' }],
+            [{ type: 'text', value: 'Dog' }, { type: 'image', path: './animals/dog.jpg' }],
+            [{ type: 'text', value: 'Horse' }, { type: 'image', path: './animals/horse.jpg' }],
+            [{ type: 'text', value: 'Pig' }, { type: 'image', path: './animals/pig.jpg' }],
+        ],
+        // list of columns to be rendered in the table footer
+        tableFooter: [{ type: 'text', value: 'Animal' }, 'Image'],
+        // custom style for the table header
+        tableHeaderStyle: 'background-color: #000; color: white;',
+        // custom style for the table body
+        tableBodyStyle: 'border: 0.5px solid #ddd',
+        // custom style for the table footer
+        tableFooterStyle: 'background-color: #000; color: white;',
+    },
+]
+
 const data = [
     {
         type: "text", // 'text' | 'barCode' | 'qrCode' | 'image' | 'table
@@ -57,14 +131,14 @@ const data = [
     },
 ];
 
-export function testPrint() {
-    try {        
+export function testPrint(printerName: string) {
+    try {
         const options = {
             preview: false, // Preview in window or print
             width: "170px", //  width of content body
             margin: "0 0 0 0", // margin of content body
             copies: 1, // Number of copies to print
-            printerName: "Printer_Sawah", // printerName: string, check it at webContent.getPrinters()
+            printerName: printerName, // printerName: string, check it at webContent.getPrinters()
             timeOutPerLine: 5000,
             silent: true,
         };
@@ -76,7 +150,8 @@ export function testPrint() {
             css: { "font-size": "12px", "font-family": "sans-serif" },
         };
 
-        const d = [...data, now];
+        // const d = [...data, now];
+        const d = [...printData, now];
 
         PosPrinter.print(d, options)
             .then(() => { })
