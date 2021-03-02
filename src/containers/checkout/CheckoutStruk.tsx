@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { ProductListProp } from '../kasir/ProductListView'
 import path from 'path';
 import { Button, RadioGroup, RenderIf } from 'react-rainbow-components';
+import { testPrint } from '../../PrinterUtil';
 
 
 interface RadioValue {
@@ -44,82 +45,6 @@ export const CheckoutStruk: React.FC<any & ProductListProp> = (props: any) => {
   }
 
 
-  function printNew() {
-
-    const electron = require('electron')
-    // Importing BrowserWindow from Main
-    const BrowserWindow = electron.remote.BrowserWindow;
-
-    var options = {
-      silent: false,
-      printBackground: true,
-      color: false,
-      margin: {
-        marginType: 'printableArea'
-      },
-      landscape: false,
-      pagesPerSheet: 1,
-      collate: false,
-      copies: 1,
-      header: 'Header of the Page',
-      footer: 'Footer of the Page'
-    }
-
-    let win = new BrowserWindow({
-      show: true,
-      webPreferences: {
-        nodeIntegration: true
-      }
-    });
-
-    // "/Users/stalloner/pythonprojects/learning/fashionstoreapp/src"
-
-    // /Users/stalloner/pythonprojects/learning/fashionstoreapp/src
-    // win.loadURL('https://www.google.com/');
-
-    let receitUrls = 'file://' +__dirname.substring(0, __dirname.lastIndexOf('/')) + '/assets/receit.html'
-
-    alert(receitUrls)
-    win.loadURL(receitUrls);
-
-    win.webContents.on('did-finish-load', () => {
-      // win.webContents.print(options, (success, failureReason) => {
-      //   if (!success) console.log(failureReason);
-      //   console.log('Print Initiated');
-      // });
-    });
-
-  }
-
-  function print() {
-    const {PosPrinter} = require('electron').remote.require("electron-pos-printer");
-
-    const options = {
-      preview: true, // Preview in window or print
-      width: "170px", //  width of content body
-      margin: "0 0 0 0", // margin of content body
-      copies: 1, // Number of copies to print
-      printerName: radioValue, // printerName: string, check it at webContent.getPrinters()
-      timeOutPerLine: 5000,
-      silent: true,
-    };
-
-    const now = {
-      type: "text",
-      value: "" + date(),
-      style: `text-align:center;`,
-      css: { "font-size": "12px", "font-family": "sans-serif" },
-    };
-
-    const d = [...data, now];
-
-    PosPrinter.print(d, options)
-      .then(() => { })
-      .catch((error: any) => {
-        console.error(error);
-      });
-  }
-
   return (
     <div>
 
@@ -139,10 +64,8 @@ export const CheckoutStruk: React.FC<any & ProductListProp> = (props: any) => {
         />
       </RenderIf>
 
-
-
       <Button onClick={() => {
-        print()
+        testPrint()
       }}>
         print
       </Button>

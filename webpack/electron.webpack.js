@@ -1,4 +1,5 @@
 const path = require('path')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const rootPath = path.resolve(__dirname, '..')
 
@@ -17,7 +18,14 @@ module.exports = {
         use: {
           loader: 'babel-loader'
         }
-      }
+      }, 
+      {
+        test: /\.(css)$/,
+        use: [
+          MiniCssExtractPlugin.loader,
+          'css-loader'
+        ],
+      },
     ]
   },
   node: {
@@ -27,5 +35,8 @@ module.exports = {
   output: {
     path: path.resolve(rootPath, 'dist'),
     filename: '[name].js'
-  }
+  },
+  plugins: [
+    new MiniCssExtractPlugin()
+  ]
 }

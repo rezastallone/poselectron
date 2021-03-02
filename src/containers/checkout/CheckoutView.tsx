@@ -40,7 +40,7 @@ export const CheckoutModalView: React.FC<any & ProductListProp> = (props: any) =
   return (
     <div>
       <Modal id="modal-1" isOpen={isOpen} onRequestClose={handleOnClose} size="large">
-        <div className="rainbow-p-around_large rainbow-m-bottom_xx-large rainbow-p-bottom_xx-large">
+        <div className="rainbow-p-around_large">
 
           <Path currentStepName={page} onClick={setStep}>
             <PathStep name="1" label="Konfirmasi Pesanan" />

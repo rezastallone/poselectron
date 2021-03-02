@@ -36,7 +36,7 @@ export const KasirView: React.FC<any> = () => {
       .then((response: Response<Product>) => {
         setProducts(response.results)
       }).catch((e: any) => {
-        alert(" error " + e)
+        console.error(" error " + e)
       })
   }
 
@@ -49,7 +49,6 @@ export const KasirView: React.FC<any> = () => {
         }}
         cart={cart}
       />
-
 
       <RenderIf isTrue={true}>
         <div className="rainbow-p-around_large">
