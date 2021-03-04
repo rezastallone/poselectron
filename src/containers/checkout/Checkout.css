@@ -52,3 +52,12 @@
   font-size: 1.5rem;
 }
 
+.heading3 {
+  font: inherit;
+  font-size: 1rem;
+}
+
+.konfirmWrapper {
+  border-top: 1px dotted #a4a7b5;
+}
+

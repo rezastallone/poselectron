@@ -40,15 +40,6 @@ export const CheckoutModalView: React.FC<any & ProductListProp> = (props: any) =
     return setIsOpen(false)
   }
 
-  function setStep(stepName: string) {
-    setPage(stepName)
-    if (stepName == "1") {
-      history.push(`${path}`)
-    } else {
-      history.push(`${path}/checkout/${stepName}`)
-    }
-  }
-
   return (
     <div>
       <Modal id="modal-1" isOpen={isOpen} onRequestClose={handleOnClose} size="large">
@@ -60,10 +51,10 @@ export const CheckoutModalView: React.FC<any & ProductListProp> = (props: any) =
             <PathStep name="3" label="Pesanan Sukses" />
           </Path>
         </div>
-
+        
         <Switch>
           <Route
-            path={`${path}`}
+            path={[`${url}/checkout/1`]}
           >
             <CheckoutKonfirm
               setCart={(cart: Cart) => {
@@ -71,27 +62,36 @@ export const CheckoutModalView: React.FC<any & ProductListProp> = (props: any) =
               }}
               cart={cart}
               onBayar={() => {
-                setStep("2")
+                setPage("2")
+                history.push(`${url}/checkout/2`)
               }}
             />
           </Route>
-          <Route path={`${path}/checkout/2`}>
+          <Route
+            path={`${url}/checkout/2`}
+          >
             <CheckoutBayar
               cart={cart}
               paymentMethods={paymentMethods}
               setPaymentMethods={setPaymentMethods}
               onBayar={() => {
-                setStep("3")
+                setPage("3")
+                history.push(`${url}/checkout/3`)
               }}
               onBatal={() => {
-                setStep("1")
+                setPage("1")
+                history.push(`${url}/checkout/1`)
               }}
             />
           </Route>
-          <Route path={`${path}/checkout/3`}>
+          <Route path={`${url}/checkout/3`}>
             <CheckoutStruk
               cart={cart}
               paymentMethods={paymentMethods}
+              onBatal={() => {
+                setPage("2")
+                history.push(`${url}/checkout/2`)
+              }}
             >
             </CheckoutStruk>
           </Route>

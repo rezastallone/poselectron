@@ -4,6 +4,7 @@ import { Button, RadioGroup, RenderIf } from 'react-rainbow-components';
 import { PaymentMethod } from './CheckoutView';
 import { getAsset } from '../../PathUtil';
 import { Cart } from '../kasir/Cart';
+import './Checkout.css'
 const { PosPrinter } = require('electron').remote.require("electron-pos-printer");
 
 let dir = getAsset(["img_test.png"])
@@ -58,26 +59,42 @@ export const CheckoutStruk: React.FC<any & ProductListProp & StrukProps> = (prop
 
   return (
     <div>
+      <div className="rainbow-flex rainbow-flex_column rainbow-align-content_space-between">
+        <div className="heading2">
+          Pembayaran Berhasil!
+      </div>
+        <div className="heading3 rainbow-m-bottom_medium">
+          Silahkan Cetak Struk
+      </div>
 
-      <RenderIf isTrue={!hasPrinter}>
-        <label>Tidak Ada Printer</label>
-      </RenderIf>
+        <RenderIf isTrue={!hasPrinter}>
+          <label >Tidak Ada Printer</label>
+        </RenderIf>
 
-      <RenderIf isTrue={hasPrinter}>
-        <RadioGroup
-          id="radio-group-component-1"
-          options={radioValues}
-          value={radioValue}
-          onChange={handleOnChange}
-          label="Pilih Printer"
-        />
-      </RenderIf>
+        <RenderIf isTrue={hasPrinter}>
+          <RadioGroup
+            id="radio-group-component-1"
+            options={radioValues}
+            value={radioValue}
+            onChange={handleOnChange}
+            label="Pilih Printer"
+          />
+        </RenderIf>
+      </div>
 
-      <Button onClick={() => {
-        testPrint(radioValue)
-      }}>
-        print
-      </Button>
+      <div className="rainbow-align-content_space-between rainbow-m-top_medium">
+        <Button
+          onClick={() => { props.onBatal() }}
+        >
+          Batal
+        </Button>
+
+        <Button onClick={() => {
+          testPrint(radioValue)
+        }}>
+          print
+          </Button>
+      </div>
     </div>
   )
 
@@ -164,7 +181,7 @@ export const CheckoutStruk: React.FC<any & ProductListProp & StrukProps> = (prop
       ":" +
       z.substr(-2) +
       ":" +
-      s.substr(-2) 
+      s.substr(-2)
     )
   }
 

@@ -7,7 +7,7 @@ let mainWindow: Electron.BrowserWindow | null
 
 function createWindow () {
   mainWindow = new BrowserWindow({
-    width: 1100,
+    width: 1100,  
     height: 700,
     backgroundColor: '#191622',
     webPreferences: {
@@ -15,6 +15,8 @@ function createWindow () {
       enableRemoteModule: true
     }
   })
+
+  mainWindow.maximize()
 
   if (process.env.NODE_ENV === 'development') {
     mainWindow.loadURL('http://localhost:4000')
