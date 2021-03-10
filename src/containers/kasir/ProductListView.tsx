@@ -27,10 +27,15 @@ export const ProductListView: React.FC<any & ProductListProp> = (props: any & Pr
     props.setCart(new Cart(cart.products))
   }
 
+  const clearProduct = (product: Product) => {
+    props.cart.clearProduct(product)
+    props.setCart(new Cart(props.cart.products))
+  }
+
   return (
     <div className="rainbow-m-bottom_xx-large">
-      <TableWithBrowserPagination pageSize={5} data={props.productList} keyField="i d">
-        <Column header="Barcode" field="id" />
+      <TableWithBrowserPagination pageSize={100} data={props.productList} keyField="id">
+        <Column header="Barcode" field="barcode" />
         <Column header="Deskripsi" field="description" />
         <Column header="Harga" component={(data: any) => (
           <RupiahTextView harga={data.row.harga} />
@@ -44,6 +49,9 @@ export const ProductListView: React.FC<any & ProductListProp> = (props: any & Pr
             }}
             removeProduct={() => {
               removeProduct(data.row)
+            }}
+            clearProduct={() => {
+              clearProduct(data.row)
             }}
           />
         )} />

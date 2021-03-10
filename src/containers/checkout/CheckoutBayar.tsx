@@ -85,7 +85,6 @@ export const CheckoutBayar: React.FC<any & ProductListProp> = (props: any) => {
     return id.toString()
   }
 
-
   function bayarUangPas() {
     let paymentMethod: PaymentMethod = {
       id: incrimentPaymentMethod(),
@@ -120,8 +119,17 @@ export const CheckoutBayar: React.FC<any & ProductListProp> = (props: any) => {
     return calculatePaymentTotal() >= cart.getSubtotal()
   }
 
+  function calculateKembalian() {
+    let kembalian = +calculatePaymentTotal() - +cart.getSubtotal()
+    if (kembalian > 0){
+        return kembalian
+    } else {
+      return 0
+    }
+  }
+
   function getTypeString(type:string){
-    if (type == "" ){
+    if (type == "1" ){
       return "Cash"
     } else {
       return "Card"
@@ -219,8 +227,8 @@ export const CheckoutBayar: React.FC<any & ProductListProp> = (props: any) => {
           </Button>
         </div>
 
-        <div className="paymentList rainbow-align_end">
-          <TableWithBrowserPagination variant="listview" pageSize={3} data={paymentMethods} keyField="id">
+        <div className="paymentList rainbow-flex_column rainbow-align_end">
+          <TableWithBrowserPagination variant="listview" pageSize={20} data={paymentMethods} keyField="id">
             <Column header="Tipe" field="type" component={(data: any) => (
               getTypeString(data.row.type)
             )}/>
@@ -242,6 +250,12 @@ export const CheckoutBayar: React.FC<any & ProductListProp> = (props: any) => {
             )} />
 
           </TableWithBrowserPagination>
+
+          <span className="heading2">Total Kembalian</span>
+          <NumberFormat value={calculateKembalian()} displayType={'text'} thousandSeparator={true} prefix={'Rp. '} renderText={(value: any) => {
+            return (<div className="heading1">{value}</div>)
+          }} />
+
         </div>
       </div>
       <div className="rainbow-align-content_space-between">

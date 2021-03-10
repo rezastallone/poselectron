@@ -9,18 +9,16 @@ import { RupiahTextView } from './RupiahTextView';
 import { Cart } from './Cart';
 import { getApi, productApi } from '../../data/RemoteData';
 import { Response } from '../../data/model/Response';
-import { CheckoutModalView } from '../checkout/CheckoutView';
+import { CheckoutModalView, CheckouView } from '../checkout/CheckoutView';
 import { useHistory } from "react-router-dom";
 import { useRouteMatch } from "react-router-dom";
 
 export const KasirView: React.FC<any> = () => {
 
   const history = useHistory();
-    let { url } = useRouteMatch();
+  let { url } = useRouteMatch();
 
   const [cart, setCart] = useState(new Cart(new Map))
-
-  const [isOpen, setIsOpen] = useState(false)
 
   const [isVisible, setIsVisible] = useState(false);
 
@@ -47,40 +45,9 @@ export const KasirView: React.FC<any> = () => {
 
   return (
     <div>
-      <ProductListView
-        productList={products}
-        setCart={(cart: Cart) => {
-          setCart(cart)
-        }}
-        cart={cart}
-      />
-
-      <RenderIf isTrue={true}>
-        <div className="rainbow-p-around_large">
-          <Card>
-            <div
-              onClick={() => { 
-                history.push(`${url}/checkout/1`)
-                setIsOpen(true)
-              }}
-              className="rainbow-p-vertical_large rainbow-p-horizontal_large rainbow-align-content_space-between">
-              <div className="rainbow-align-content_end">
-                <ButtonIcon variant="border-filled" icon={<MdShoppingCart />} />
-                {cart.getTotalProductCount()} Item
-            </div>
-              <div>
-                <RupiahTextView harga={cart.getSubtotal()} />
-              </div>
-            </div>
-          </Card>
-        </div>
-      </RenderIf>
-
-      <CheckoutModalView
+      <CheckouView
         cart={cart}
         setCart={setCart}
-        isOpen={isOpen}
-        setIsOpen={setIsOpen}
       />
     </div>
   )

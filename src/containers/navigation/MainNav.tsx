@@ -23,7 +23,7 @@ export const SimpleVerticalNavigation: React.FC<any> = (props: any) => {
     let { path, url } = useRouteMatch();
 
     useEffect(() => {
-        history.push(`${url}/penjualan`)
+        history.push(`${url}penjualan/checkout/1`)
     }, [])
 
     function handleOnSelect(event: React.MouseEvent<HTMLElement, MouseEvent>, name: string) {
@@ -43,16 +43,18 @@ export const SimpleVerticalNavigation: React.FC<any> = (props: any) => {
                         className="react-rainbow-admin-app_sidebar-item"
                         name="penjualan"
                         label="Penjualan"
-                        onClick={() => history.push(`${url}/penjualan`)} />
+                        onClick={ () => {
+                            history.push(`${url}penjualan`);
+                     }} />
                 </Sidebar>
             </div>
 
             <div className="react-rainbow-admin-app_router-container">
                 <Switch>
-                    <Route path={`${path}/penjualan`}>
+                    <Route path={`${path}penjualan`}>
                         <KasirView />
                     </Route>
-                    <Route path={`${path}/mymeeting`}>
+                    <Route path={`${path}mymeeting`}>
                         (
                             <h1>Second Tab</h1>
                         )

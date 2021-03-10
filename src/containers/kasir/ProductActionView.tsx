@@ -1,9 +1,10 @@
 import React from 'react';
 import { ButtonIcon } from 'react-rainbow-components';
-import { MdAdd, MdRemove } from "react-icons/md";
+import { MdAdd, MdClose, MdRemove } from "react-icons/md";
 
 interface ProductActionProps {
   addProduct: () => void,
+  clearProduct: () => void,
   removeProduct: () => void,
   count: number
 }
@@ -21,6 +22,12 @@ export const ProductActionView: React.FC<any & ProductActionProps> = (props: any
       <div className="rainbow-p-right_large">
         <ButtonIcon variant="border-filled" icon={<MdRemove />} onClick={() => {
           props.removeProduct()
+        }} />
+      </div>
+
+      <div className="rainbow-p-right_large">
+        <ButtonIcon variant="border-filled" icon={<MdClose />} onClick={() => {
+          props.clearProduct()
         }} />
       </div>
 

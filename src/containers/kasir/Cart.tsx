@@ -13,6 +13,10 @@ export class Cart {
     this.products = products;
   }
 
+  clearProduct(product: Product){
+    this.products.delete(product.id)
+  }
+
   addProduct(product: Product) {
     let cartProd = this.getCardProd(product)
     if (!cartProd) {
