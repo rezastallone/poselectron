@@ -105,6 +105,7 @@
     "dexie": "^3.0.3",
     "electron-pos-printer": "^1.2.4",
     "lodash.debounce": "^4.0.8",
+    "mousetrap": "^1.6.5",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-icons": "^4.2.0",

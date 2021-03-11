@@ -80,9 +80,11 @@ export const CheckouView: React.FC<any & ProductListProp> = (props: any) => {
           <CheckoutStruk
             cart={cart}
             paymentMethods={paymentMethods}
-            onBatal={() => {
-              setPage("2")
-              history.push(`${url}/checkout/2`)
+            onTutup={() => {
+              setCart(new Cart(new Map()))
+              setPaymentMethods([])
+              setPage("1")
+              history.push(`${url}/checkout/1`)
             }}
           >
           </CheckoutStruk>

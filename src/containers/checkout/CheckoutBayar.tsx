@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Button, Column, TableWithBrowserPagination } from 'react-rainbow-components';
+import React, { useEffect, useRef, useState } from 'react';
+import { Button, Card, Column, TableWithBrowserPagination } from 'react-rainbow-components';
 import { ProductListProp } from '../kasir/ProductListView';
 import { RupiahTextView } from '../kasir/RupiahTextView';
 import { Input } from 'react-rainbow-components';
@@ -8,10 +8,19 @@ import NumberFormat, { NumberFormatProps } from 'react-number-format';
 import './Checkout.css'
 import { GenericActionView } from '../kasir/GenericActionView';
 import { PaymentMethod } from './CheckoutView';
+import Mousetrap from 'mousetrap';
 
 interface PaymentOptions {
   name: string | undefined | number
   label: string | undefined
+}
+
+function getTypeString(type: string) {
+  if (type == "1") {
+    return "Cash"
+  } else {
+    return "Card"
+  }
 }
 
 export const CheckoutBayar: React.FC<any & ProductListProp> = (props: any) => {
@@ -48,13 +57,22 @@ export const CheckoutBayar: React.FC<any & ProductListProp> = (props: any) => {
 
   const [isCash, setIsCash] = useState(true)
 
+  const bayarInput = useRef(null)
+
+  useEffect(() => {
+    bayarInput.current.focus()
+  }, [])
+
   useEffect(() => {
     setIsCash(paymentOption.name == "option 1")
     setIsCard(paymentOption.name == "option 2")
+    bayarInput.current.focus()
   }, [paymentOption])
 
   useEffect(() => {
     setHasUangDiterima(uangDiterima > 0)
+    cart.pembayaran = uangDiterima
+
   }, [uangDiterima])
 
   useEffect(() => {
@@ -119,40 +137,29 @@ export const CheckoutBayar: React.FC<any & ProductListProp> = (props: any) => {
     return calculatePaymentTotal() >= cart.getSubtotal()
   }
 
-  function calculateKembalian() {
-    let kembalian = +calculatePaymentTotal() - +cart.getSubtotal()
-    if (kembalian > 0){
-        return kembalian
-    } else {
-      return 0
+  function bayarWithCheck() {
+    let enoughUangDiterima = uangDiterima >= cart.getSubtotal()
+    if (isCanPay()) {
+      onBayar();
+    } else if (isCash && enoughUangDiterima){
+      addPaymentMethod()
+      onBayar()
+    } else if (isCard && enoughUangDiterima && cardNumber.length > 0){
+      addPaymentMethod()
+      onBayar()
     }
   }
 
-  function getTypeString(type:string){
-    if (type == "1" ){
-      return "Cash"
-    } else {
-      return "Card"
-    }
-  }
+  Mousetrap.bind('enter', function() { bayarWithCheck() }, 'keyup');
 
   return (
-    <div>
-      <div className="rainbow-flex rainbow-flex_row rainbow-align-content_space-between rainbow-p-around_small">
+    <Card className="rainbow-m-around_large rainbow-p-around_large">
+      <div className="rainbow-flex rainbow-flex_column rainbow-align_end">
+        <span className="heading2">Total Pembelian</span>
+        <NumberFormat value={cart.getSubtotal()} displayType={'text'} thousandSeparator={true} prefix={'Rp. '} renderText={(value: any) => {
+          return (<div className="heading1">{value}</div>)
+        }} />
 
-        <div className="rainbow-flex rainbow-flex_column rainbow-align_start">
-          <span className="heading2">Total Tagihan</span>
-          <NumberFormat value={cart.getSubtotal()} displayType={'text'} thousandSeparator={true} prefix={'Rp. '} renderText={(value: any) => {
-            return (<div className="heading1">{value}</div>)
-          }} />
-        </div>
-
-        <div className="rainbow-flex rainbow-flex_column rainbow-align_end">
-          <span className="heading2">Total Bayar</span>
-          <NumberFormat value={calculatePaymentTotal()} displayType={'text'} thousandSeparator={true} prefix={'Rp. '} renderText={(value: any) => {
-            return (<div className="heading1">{value}</div>)
-          }} />
-        </div>
       </div>
 
       <div className="rainbow-flex rainbow-flex_row rainbow-align_start paymentWrapper rainbow-m-vertical_medium rainbow-p-vertical_small">
@@ -188,13 +195,19 @@ export const CheckoutBayar: React.FC<any & ProductListProp> = (props: any) => {
             }}
             renderText={value => <div>{value}</div>}
             customInput={Input}
+            getInputRef={bayarInput}
+            onKeyDown={ (it:any) => {
+              if (it.key == 'Enter'){
+                bayarWithCheck();
+              }
+            }}
           />
 
           <div className="rainbow-m-bottom_medium">
             <RenderIf isTrue={isCard} >
               <Input
                 className="widthmax"
-                label="Masukan Struk EDC"
+                label="Masukan Nomor Transaksi"
                 placeholder="Contoh 'BCA 1234923812752'"
                 type="text"
                 value={cardNumber}
@@ -202,36 +215,42 @@ export const CheckoutBayar: React.FC<any & ProductListProp> = (props: any) => {
                   setCardNumber(event.target.value)
                 }}
                 style={inputStyles}
+                onKeyDown={ (it:any) => {
+                  if (it.key == 'Enter'){
+                    bayarWithCheck();
+                  }
+                }}
               />
             </RenderIf>
           </div>
 
           <div className="rainbow-m-bottom_medium widthmax">
-            <RenderIf isTrue={isCash} >
-              <Button
-                className="widthmax"
-                onClick={() => { bayarUangPas() }}
-              >
-                Uang Pas
-            </Button>
-            </RenderIf>
+            <Button
+              variant="success"
+              className="widthmax"
+              onClick={() => { addPaymentMethod() }}
+              disabled={!canAddPaymentMethod()}
+            >
+              Tambah Pembayaran
+          </Button>
           </div>
 
-          <Button
-            variant="brand"
-            className="widthmax"
-            onClick={() => { addPaymentMethod() }}
-            disabled={!canAddPaymentMethod()}
-          >
-            Tambah Pembayaran
-          </Button>
+          <RenderIf isTrue={isCash} >
+            <Button
+              variant="brand"
+              className="widthmax"
+              onClick={() => { bayarUangPas() }}
+            >
+              Uang Pas
+            </Button>
+          </RenderIf>
         </div>
 
         <div className="paymentList rainbow-flex_column rainbow-align_end">
           <TableWithBrowserPagination variant="listview" pageSize={20} data={paymentMethods} keyField="id">
             <Column header="Tipe" field="type" component={(data: any) => (
               getTypeString(data.row.type)
-            )}/>
+            )} />
 
             <Column header="No. Kartu" field="cardNumber" />
             <Column header="Total" component={(data: any) => (
@@ -251,8 +270,8 @@ export const CheckoutBayar: React.FC<any & ProductListProp> = (props: any) => {
 
           </TableWithBrowserPagination>
 
-          <span className="heading2">Total Kembalian</span>
-          <NumberFormat value={calculateKembalian()} displayType={'text'} thousandSeparator={true} prefix={'Rp. '} renderText={(value: any) => {
+          <span className="heading2">Total Bayar</span>
+          <NumberFormat value={calculatePaymentTotal()} displayType={'text'} thousandSeparator={true} prefix={'Rp. '} renderText={(value: any) => {
             return (<div className="heading1">{value}</div>)
           }} />
 
@@ -260,19 +279,23 @@ export const CheckoutBayar: React.FC<any & ProductListProp> = (props: any) => {
       </div>
       <div className="rainbow-align-content_space-between">
         <Button
+          size="large"
+          variant="destructive"
           onClick={() => { onBatal() }}
         >
           Batal
         </Button>
 
         <Button
+          variant="brand"
           onClick={() => { onBayar() }}
           disabled={!isCanPay()}
+          size="large"
         >
           Bayar
         </Button>
       </div>
-    </div>
+    </Card>
   );
 };
 

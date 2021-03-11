@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { ProductListProp } from '../kasir/ProductListView'
-import { Button, RadioGroup, RenderIf } from 'react-rainbow-components';
+import { Button, Card, RadioGroup, RenderIf } from 'react-rainbow-components';
 import { PaymentMethod } from './CheckoutView';
 import { getAsset } from '../../PathUtil';
 import { Cart } from '../kasir/Cart';
 import './Checkout.css'
+import NumberFormat from 'react-number-format';
+import { CartProd } from '../kasir/CartProd';
 const { PosPrinter } = require('electron').remote.require("electron-pos-printer");
 
 let dir = getAsset(["img_test.png"])
@@ -36,33 +38,66 @@ export const CheckoutStruk: React.FC<any & ProductListProp & StrukProps> = (prop
 
   const [radioValues, setRadioValues] = useState(radioValuesInit)
 
+  const [hasKembalian, setHaskembalian] = useState(false)
+
+  const [kembalian, setKembalian] = useState(0)
+
   function handleOnChange(event: any) {
     return setRadioValue(event.target.value)
   }
 
   useEffect(() => {
+    calculateKembalian()
     checkHasPrinter()
     let options: RadioValue[] = []
     webContents.getPrinters().forEach((value, index) => {
       if (index == 0) {
         setRadioValue(value.name)
+        testPrint(value.name)
       }
       options.push({ value: value.name, label: value.displayName })
     })
     setRadioValues(options)
+
   }, [])
 
   function checkHasPrinter() {
     setHasPrinter(webContents.getPrinters().length > 0)
   }
 
+  function calculatePaymentTotal() {
+    let total = 0
+    paymentMethods.forEach((value: PaymentMethod, i: number) => {
+      total += +value.total
+    })
+    return total
+  }
+
+  function calculateKembalian() {
+    let kembalian = +calculatePaymentTotal() - +cart.getSubtotal()
+    if (kembalian > 0) {
+      setHaskembalian(true)
+      setKembalian(kembalian)
+    } else {
+      setHaskembalian(false)
+      setKembalian(0)
+    }
+  }
 
   return (
-    <div>
+    <Card className="rainbow-m-around_large rainbow-p-around_large">
       <div className="rainbow-flex rainbow-flex_column rainbow-align-content_space-between">
-        <div className="heading2">
-          Pembayaran Berhasil!
-      </div>
+        <div className="rainbow-m-bottom_large rainbow-flex rainbow-flex_column rainbow-align-content_space-between">
+          <div className="heading2 ">Pembayaran Berhasil!</div>
+
+          <RenderIf isTrue={hasKembalian} >
+            <span className="heading2">Total Kembalian</span>
+            <NumberFormat value={kembalian} displayType={'text'} thousandSeparator={true} prefix={'Rp. '} renderText={(value: any) => {
+              return (<div className="heading1">{value}</div>)
+            }} />
+          </RenderIf>
+
+        </div>
         <div className="heading3 rainbow-m-bottom_medium">
           Silahkan Cetak Struk
       </div>
@@ -79,23 +114,28 @@ export const CheckoutStruk: React.FC<any & ProductListProp & StrukProps> = (prop
             onChange={handleOnChange}
             label="Pilih Printer"
           />
+
+          <Button
+            size="large"
+            variant="brand"
+            onClick={() => {
+              testPrint(radioValue)
+            }}>
+            Print
+          </Button>
         </RenderIf>
       </div>
 
-      <div className="rainbow-align-content_space-between rainbow-m-top_medium">
+      <div className="rainbow-align-content_center rainbow-m-top_large">
         <Button
-          onClick={() => { props.onBatal() }}
+          size="large"
+          variant="success"
+          onClick={() => { props.onTutup() }}
         >
-          Batal
+          Tutup
         </Button>
-
-        <Button onClick={() => {
-          testPrint(radioValue)
-        }}>
-          print
-          </Button>
       </div>
-    </div>
+    </Card>
   )
 
   const data = [
@@ -185,15 +225,39 @@ export const CheckoutStruk: React.FC<any & ProductListProp & StrukProps> = (prop
     )
   }
 
-  function testPrint() {
+  function testPrint(printerName: string) {
     try {
-      let tableBody: [number, number][] = []
-      let total: number = 0
 
-      paymentMethods.forEach(value => {
-        tableBody.push([value.type, value.total])
-        total = +total + +value.total
-      });
+      const space = {
+        type: "text",
+        value: "  ",
+        style: `text-align:start;`,
+        css: { "font-size": "10px", "font-family": "sans-serif" },
+      };
+
+      const cashier = {
+        type: "text",
+        value: "Cashier : ",
+        style: `text-align:start;`,
+        css: { "font-size": "10px", "font-family": "sans-serif" },
+      };
+
+      const nota = {
+        type: "text",
+        value: "Nota : ",
+        style: `text-align:start;`,
+        css: { "font-weight": "400", "font-size": "10px", "font-family": "sans-serif" },
+      };
+
+      const now = {
+        type: "text",
+        value: "Tanggal : " + date(),
+        style: `text-align:start;`,
+        css: { "font-size": "10px", "font-family": "sans-serif" },
+      };
+
+      let paymentTableHtml = getPaymentTableHtml(paymentMethods);
+      let productTableHtml = getProductTableHtml(cart);
 
       const printData = [
         // {
@@ -214,44 +278,41 @@ export const CheckoutStruk: React.FC<any & ProductListProp & StrukProps> = (prop
           value: 'TOKO CABANG HAWAI',
           style: `text-align:center;`,
           css: { "font-weight": "700", "font-size": "18px" }
-        }, {
-          type: 'table',
-          // style the table
-          style: 'border: 1px solid #ddd',
-          // list of the columns to be rendered in the table header
-          tableHeader: ['Metode', 'Bayar'],
-          // multi dimensional array depicting the rows and columns of the table body
-          tableBody: tableBody,
-          // list of columns to be rendered in the table footer
-          tableFooter: ['Total', total],
-          // custom style for the table header
-          tableHeaderStyle: 'background-color: white; color: #000;',
-          // custom style for the table body
-          tableBodyStyle: 'border: 0.5px solid white',
-          // custom style for the table footer
-          tableFooterStyle: 'background-color: white; color: #000;',
         },
+        now,
+        nota,
+        cashier,
+        space,
+        productTableHtml,
+        paymentTableHtml,
       ]
 
       const options = {
         preview: false, // Preview in window or print
-        width: "250px", //  width of content body
+        width: "300px", //  width of content body
         margin: "0 0 0 0", // margin of content body
         copies: 1, // Number of copies to print
-        printerName: radioValue, // printerName: string, check it at webContent.getPrinters()
+        printerName: printerName, // printerName: string, check it at webContent.getPrinters()
         timeOutPerLine: 5000,
         silent: true,
       };
 
-      const now = {
+      const noReturnText = {
         type: "text",
-        value: "Date Printed : " + date(),
+        value: "Barang yang sudah dibeli tidak dapat ditukar kembali",
         style: `text-align:center;`,
-        css: { "font-size": "10px", "font-family": "sans-serif" },
+        css: { "font-size": "12px", "font-family": "sans-serif" },
+      };
+
+      const terimaKasihText = {
+        type: "text",
+        value: "* Terima Kasih *",
+        style: `text-align:center;`,
+        css: { "font-size": "10px", "font-family": "sans-serif", "font-weight": "700" },
       };
 
       // const d = [...data, now];
-      const d = [...printData, now];
+      const d = [...printData,space, noReturnText, terimaKasihText];
 
       PosPrinter.print(d, options)
         .then(() => { })
@@ -263,3 +324,74 @@ export const CheckoutStruk: React.FC<any & ProductListProp & StrukProps> = (prop
     }
   }
 }
+
+function getProductTableHtml(cart: Cart) {
+  let productTable: [number, string, number, number, number][] = [];
+
+  let no = 1
+  cart.products.forEach((value: CartProd, key: number) => {
+    let produk = value.product.description
+    let qty = value.count
+    let harga = value.product.harga * 1
+    let jumlah = +value.product.harga * +qty
+    productTable.push([no++, produk, qty, harga, jumlah])
+  })
+
+  let paymentTableHtml = {
+    type: 'table',
+    // style the table
+    style: 'border: 1px solid #ddd',
+    // list of the columns to be rendered in the table header
+    tableHeader: ['No', 'Produk', 'Qty', 'Harga', 'Jumlah'],
+    // multi dimensional array depicting the rows and columns of the table body
+    tableBody: productTable,
+    // custom style for the table header
+    tableHeaderStyle: 'background-color: white; color: #000;',
+    // custom style for the table body
+    tableBodyStyle: 'border: 0.5px solid white',
+    // custom style for the table footer
+    tableFooterStyle: 'background-color: white; color: #000;',
+  };
+  return paymentTableHtml;
+}
+
+function getTypeString(type: number) {
+  if (type == 1) {
+    return "Cash"
+  } else {
+    return "Card"
+  }
+}
+
+function getPaymentTableHtml(paymentMethods: PaymentMethod[]) {
+  let paymentTable: [string, string, number][] = [];
+  let total: number = 0;
+  paymentMethods.forEach(value => {
+    let noTrx = "************"
+    if (value.type != 1) {
+      noTrx = value.cardNumber
+    }
+
+    paymentTable.push([getTypeString(value.type), noTrx, value.total]);
+    total = +total + +value.total;
+  });
+  let paymentTableHtml = {
+    type: 'table',
+    // style the table
+    style: 'border: 1px solid #ddd',
+    // list of the columns to be rendered in the table header
+    tableHeader: ['Metode', 'No. Trx.', 'Bayar'],
+    // multi dimensional array depicting the rows and columns of the table body
+    tableBody: paymentTable,
+    // list of columns to be rendered in the table footer
+    tableFooter: ['Total', total],
+    // custom style for the table header
+    // tableHeaderStyle: 'background-color: white; color: #000;',
+    // custom style for the table body
+    tableBodyStyle: 'border: 0.5px solid white',
+    // custom style for the table footer
+    tableFooterStyle: 'background-color: white; color: #000;',
+  };
+  return paymentTableHtml;
+}
+

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Cart } from '../kasir/Cart';
-import { Button, Lookup } from 'react-rainbow-components';
+import { Button, Card, Lookup } from 'react-rainbow-components';
 import { ProductListProp, ProductListView } from '../kasir/ProductListView';
 import './Checkout.css'
 import NumberFormat from 'react-number-format';
@@ -40,10 +40,6 @@ export const CheckoutKonfirm: React.FC<any & ProductListProp> = (props: any) => 
       .then((response: Response<Product>) => {
         setIsLoading(false);
         if (response.results.length > 0) {
-          // cart.addProduct(response.results[0])
-          // setCart(new Cart(cart.products))
-          // setBarcodeSearch("")
-
           let optionProducts: OptionProduct[] = []
           response.results.map((item: Product) => {
             optionProducts.push({
@@ -71,51 +67,67 @@ export const CheckoutKonfirm: React.FC<any & ProductListProp> = (props: any) => 
     debouncedSave(barcodeSearch)
   }, [barcodeSearch])
 
+  function isCanCheckout() {
+    return cart.products.size > 0
+  }
+
   return (
-    <div>
-      <div className="rainbow-m-around_xx-large">
-        <Lookup
-          id="lookup-1"
-          label="Cari Barang"
-          placeholder="Masukan nama barang atau kode barcode"
-          options={options}
-          isLoading={isLoading}
-          onChange={(item: any) => {
-            if (item.value) {
-              cart.addProduct(item.value)
-              setCart(new Cart(cart.products))
+    <Card className="rainbow-m-around_large rainbow-p-around_large">
+      <div>
+        <div className="rainbow-flex rainbow-flex_column rainbow-align_end rainbow-m-bottom_small">
+          <div className="rainbow-flex rainbow-flex_column rainbow-align_center">
+            <span className="heading1">Total Pembelian</span>
+            <NumberFormat value={cart.getSubtotal()} displayType={'text'} thousandSeparator={true} prefix={'Rp. '} renderText={(value: any) => {
+              return (<div className="heading2">{value}</div>)
+            }} />
+          </div>
+        </div>
+
+        <div className="rainbow-m-around_large">
+          <Lookup
+            id="lookup-1"
+            label="Cari Barang"
+            placeholder="Masukan nama barang atau kode barcode"
+            options={options}
+            isLoading={isLoading}
+            onChange={(item: any) => {
+              if (item.value) {
+                cart.addProduct(item.value)
+                setCart(new Cart(cart.products))
+              }
             }
-          }
-          }
-          onSearch={(keyword) => {
-            setIsLoading(true);
-            setBarcodeSearch(keyword)
-          }}
-        />
-      </div>
+            }
+            onSearch={(keyword) => {
+              setIsLoading(true);
+              setBarcodeSearch(keyword)
+            }}
+          />
+        </div>
 
-      <ProductListView
-        productList={cart.getProductList()}
-        setCart={(cart: Cart) => {
-          setCart(cart);
-        }}
-        cart={cart} />
+        <div
+        >
+          <ProductListView
+            productList={cart.getProductList()}
+            setCart={(cart: Cart) => {
+              setCart(cart);
+            }}
+            cart={cart} />
+        </div>
 
-      <div className="rainbow-flex rainbow-flex_column rainbow-align_start rainbow-m-bottom_small">
-        <span className="heading2">Total Tagihan</span>
-        <NumberFormat value={cart.getSubtotal()} displayType={'text'} thousandSeparator={true} prefix={'Rp. '} renderText={(value: any) => {
-          return (<div className="heading1">{value}</div>)
-        }} />
+        <div className="rainbow-flex rainbow-flex_column rainbow-align_end">
+          <Button 
+            className="rainbow-m-top_small rainbow-m-horizontal_large"
+            size="large"
+            variant="success"
+            disabled={!isCanCheckout()}
+            onClick={() => {
+              onBayar()
+            }}>
+            Konfirmasi
+          </Button>
+        </div>
       </div>
-
-      <div className="konfirmWrapper rainbow-flex rainbow-flex_column rainbow-align_end">
-        <Button className="rainbow-m-top_small"
-          onClick={() => {
-            onBayar()
-          }}>
-          Konfirmasi
-        </Button>
-      </div>
-    </div>
+    </Card>
   );
 };
+

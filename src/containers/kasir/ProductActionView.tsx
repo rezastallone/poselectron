@@ -1,6 +1,7 @@
 import React from 'react';
 import { ButtonIcon } from 'react-rainbow-components';
 import { MdAdd, MdClose, MdRemove } from "react-icons/md";
+import './ProductAction.css'
 
 interface ProductActionProps {
   addProduct: () => void,
@@ -12,29 +13,28 @@ interface ProductActionProps {
 export const ProductActionView: React.FC<any & ProductActionProps> = (props: any) => {
 
   return (
-    <div className="rainbow-p-vertical_large rainbow-p-left_x-large rainbow-flex rainbow-align_center">
-      <div className="rainbow-p-right_large">
-        <ButtonIcon variant="success" icon={<MdAdd />} onClick={()=>{
+    <div className="padding-vertical_xsmall rainbow-flex rainbow-align_center">
+      <div className="rainbow-p-right_medium">
+        <ButtonIcon size="medium" variant="success" icon={<MdAdd />} onClick={()=>{
           props.addProduct()
         }} />
       </div>
 
-      <div className="rainbow-p-right_large">
-        <ButtonIcon variant="border-filled" icon={<MdRemove />} onClick={() => {
+      <div className="rainbow-p-right_medium">
+        <ButtonIcon size="medium" variant="border-filled" icon={<MdRemove />} onClick={() => {
           props.removeProduct()
         }} />
       </div>
 
-      <div className="rainbow-p-right_large">
-        <ButtonIcon variant="border-filled" icon={<MdClose />} onClick={() => {
-          props.clearProduct()
-        }} />
-      </div>
-
-      <div>
+      <div className="rainbow-p-right_medium">
         { props.count}
       </div>
 
+      <div className="rainbow-p-right_medium">
+        <ButtonIcon size="medium" variant="border-filled" icon={<MdClose />} onClick={() => {
+          props.clearProduct()
+        }} />
+      </div>
     </div>
   )
 }
