@@ -32,6 +32,11 @@
   width: 100%;
 }
 
+.productList {
+  max-height: 400px;
+  overflow-y: scroll;
+}
+
 .numberformatinput:focus, 
  
 .numberformatinput:active {

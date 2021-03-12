@@ -74,7 +74,7 @@ export const CheckoutStruk: React.FC<any & ProductListProp & StrukProps> = (prop
   }
 
   function calculateKembalian() {
-    let kembalian = +calculatePaymentTotal() - +cart.getSubtotal()
+    let kembalian = +calculatePaymentTotal() - +cart.getSubtotalWithDiscount()
     if (kembalian > 0) {
       setHaskembalian(true)
       setKembalian(kembalian)
@@ -228,6 +228,34 @@ export const CheckoutStruk: React.FC<any & ProductListProp & StrukProps> = (prop
   function testPrint(printerName: string) {
     try {
 
+      const diskonHtml = {
+        type: "text",
+        value: "Diskon " + cart.getDiscountPrice(),
+        style: `text-align:end;`,
+        css: { "font-size": "10px", "font-family": "sans-serif", "padding": "2px 0px 2px" },
+      };
+
+      const subtotalWithDiskonHtml = {
+        type: "text",
+        value: "Total " + cart.getSubtotalWithDiscount(),
+        style: `text-align:end;`,
+        css: { "font-size": "10px", "font-family": "sans-serif" , "padding": "2px 0px 2px" },
+      };
+
+      const totalPayHtml = {
+        type: "text",
+        value: "Bayar " + getTotalPay(paymentMethods),
+        style: `text-align:end;`,
+        css: { "font-size": "10px", "font-family": "sans-serif" , "padding": "2px 0px 2px" },
+      };
+
+      const kembalianHtml = {
+        type: "text",
+        value: "Kembalian " + kembalian,
+        style: `text-align:end;`,
+        css: { "font-size": "10px", "font-family": "sans-serif" , "padding": "2px 0px 2px" },
+      };
+
       const space = {
         type: "text",
         value: "  ",
@@ -239,21 +267,21 @@ export const CheckoutStruk: React.FC<any & ProductListProp & StrukProps> = (prop
         type: "text",
         value: "Cashier : ",
         style: `text-align:start;`,
-        css: { "font-size": "10px", "font-family": "sans-serif" },
+        css: { "font-size": "10px", "font-family": "sans-serif" , "padding": "2px 0px 2px" },
       };
 
       const nota = {
         type: "text",
         value: "Nota : ",
         style: `text-align:start;`,
-        css: { "font-weight": "400", "font-size": "10px", "font-family": "sans-serif" },
+        css: { "font-weight": "400", "font-size": "10px", "font-family": "sans-serif" , "padding": "2px 0px 2px" },
       };
 
       const now = {
         type: "text",
         value: "Tanggal : " + date(),
         style: `text-align:start;`,
-        css: { "font-size": "10px", "font-family": "sans-serif" },
+        css: { "font-size": "10px", "font-family": "sans-serif" , "padding": "2px 0px 2px" },
       };
 
       let paymentTableHtml = getPaymentTableHtml(paymentMethods);
@@ -284,7 +312,11 @@ export const CheckoutStruk: React.FC<any & ProductListProp & StrukProps> = (prop
         cashier,
         space,
         productTableHtml,
-        paymentTableHtml,
+        diskonHtml,
+        subtotalWithDiskonHtml,
+        totalPayHtml,
+        kembalianHtml,
+        paymentTableHtml
       ]
 
       const options = {
@@ -311,7 +343,6 @@ export const CheckoutStruk: React.FC<any & ProductListProp & StrukProps> = (prop
         css: { "font-size": "10px", "font-family": "sans-serif", "font-weight": "700" },
       };
 
-      // const d = [...data, now];
       const d = [...printData,space, noReturnText, terimaKasihText];
 
       PosPrinter.print(d, options)
@@ -340,7 +371,7 @@ function getProductTableHtml(cart: Cart) {
   let paymentTableHtml = {
     type: 'table',
     // style the table
-    style: 'border: 1px solid #ddd',
+    // style: 'border: 1px solid #ddd',
     // list of the columns to be rendered in the table header
     tableHeader: ['No', 'Produk', 'Qty', 'Harga', 'Jumlah'],
     // multi dimensional array depicting the rows and columns of the table body
@@ -363,28 +394,34 @@ function getTypeString(type: number) {
   }
 }
 
+function getTotalPay(paymentMethods: PaymentMethod[]){
+  let total: number = 0;
+  paymentMethods.forEach(value => {
+    total = +total + +value.total;
+  });
+  return total;
+}
+
 function getPaymentTableHtml(paymentMethods: PaymentMethod[]) {
   let paymentTable: [string, string, number][] = [];
-  let total: number = 0;
+  
   paymentMethods.forEach(value => {
     let noTrx = "************"
     if (value.type != 1) {
       noTrx = value.cardNumber
     }
-
     paymentTable.push([getTypeString(value.type), noTrx, value.total]);
-    total = +total + +value.total;
   });
+
   let paymentTableHtml = {
     type: 'table',
     // style the table
-    style: 'border: 1px solid #ddd',
+    // style: 'border: 1px solid #ddd',
     // list of the columns to be rendered in the table header
     tableHeader: ['Metode', 'No. Trx.', 'Bayar'],
     // multi dimensional array depicting the rows and columns of the table body
     tableBody: paymentTable,
     // list of columns to be rendered in the table footer
-    tableFooter: ['Total', total],
     // custom style for the table header
     // tableHeaderStyle: 'background-color: white; color: #000;',
     // custom style for the table body
@@ -392,6 +429,7 @@ function getPaymentTableHtml(paymentMethods: PaymentMethod[]) {
     // custom style for the table footer
     tableFooterStyle: 'background-color: white; color: #000;',
   };
+
   return paymentTableHtml;
 }
 

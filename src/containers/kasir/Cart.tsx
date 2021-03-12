@@ -13,8 +13,17 @@ export class Cart {
     this.products = products;
   }
 
-  clearProduct(product: Product){
+  clearProduct(product: Product) {
     this.products.delete(product.id)
+  }
+
+  updateDiscount(diskon: number, product: Product) {
+    let productExist = this.products.get(product.id)
+    if (productExist) {
+      productExist.diskon = diskon
+      productExist.product.diskon = diskon
+      this.products.set(product.id, productExist)
+    }
   }
 
   addProduct(product: Product) {
@@ -30,8 +39,10 @@ export class Cart {
     let cartProd = this.getCardProd(product)
     if (cartProd.count > 0) {
       cartProd.count -= 1
+      this.products.set(product.id, cartProd)
+    } else {
+      this.clearProduct(product)
     }
-    this.products.set(product.id, cartProd)
   }
 
   getSubtotal() {
@@ -40,6 +51,20 @@ export class Cart {
       harga = +harga + (+cartProd.product.harga * cartProd.count)
     })
     return harga
+  }
+
+  getDiscountPrice() {
+    let diskonPrice = 0
+    this.products.forEach((cartProd: CartProd) => {
+      if (cartProd.product.diskon > 0) {
+        diskonPrice = +diskonPrice + ( ( +cartProd.product.harga * (cartProd.product.diskon / 100)) * cartProd.count )
+      }
+    })
+    return diskonPrice
+  }
+
+  getSubtotalWithDiscount() {
+    return this.getSubtotal() - this.getDiscountPrice()
   }
 
   private getCardProd(product: Product) {

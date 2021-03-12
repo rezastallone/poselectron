@@ -32,15 +32,35 @@ export const ProductListView: React.FC<any & ProductListProp> = (props: any & Pr
     props.setCart(new Cart(props.cart.products))
   }
 
+  const handleDiskonOnChange = ({ value, row }) => {
+    console.log(value)
+    let cart: Cart = props.cart
+    let diskon = Number(value) || 0
+    if ( diskon > 0 && diskon <= 100 ){
+      cart.updateDiscount(value, row)
+      props.setCart(new Cart(props.cart.products))
+    } else {
+      cart.updateDiscount(0, row)
+      props.setCart(new Cart(props.cart.products))
+    } 
+}
+
   return (
     <div className="rainbow-m-bottom_xx-large">
-      <TableWithBrowserPagination pageSize={100} data={props.productList} keyField="id">
-        <Column header="Barcode" field="barcode" />
+      <TableWithBrowserPagination pageSize={100} data={props.productList} keyField="barcode">
+        <Column header="Barcode" field="barcode" defaultWidth="130"/>
         <Column header="Deskripsi" field="description" />
+        <Column
+            header="Diskon (1 - 100)"
+            field="diskon"
+            isEditable
+            defaultWidth="130"
+            onChange={handleDiskonOnChange}
+        />
         <Column header="Harga" component={(data: any) => (
           <RupiahTextView harga={data.row.harga} />
         )} />
-        <Column header="Aksi" component={(data: any) => (
+        <Column header="Aksi" defaultWidth="300" component={(data: any) => (
           <ProductActionView
             count={props.cart.getProductCount(data.row)}
             row={data.row}

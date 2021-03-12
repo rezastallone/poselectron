@@ -45,7 +45,9 @@ export const CheckoutBayar: React.FC<any & ProductListProp> = (props: any) => {
 
   const [paymentOption, setPaymentOption] = useState(initPaymentOption)
 
-  const [uangDiterima, setUangDiterima] = useState(0);
+  let initUang: number | null = null
+
+  const [uangDiterima, setUangDiterima] = useState(initUang);
 
   const [cardNumber, setCardNumber] = useState("");
 
@@ -60,14 +62,20 @@ export const CheckoutBayar: React.FC<any & ProductListProp> = (props: any) => {
   const bayarInput = useRef(null)
 
   useEffect(() => {
-    bayarInput.current.focus()
+    requestFocusBayarInput();
   }, [])
 
   useEffect(() => {
     setIsCash(paymentOption.name == "option 1")
     setIsCard(paymentOption.name == "option 2")
-    bayarInput.current.focus()
+    requestFocusBayarInput();
   }, [paymentOption])
+
+  function requestFocusBayarInput() {
+    if (bayarInput != null && bayarInput.current != null) {
+      bayarInput.current.focus();
+    }
+  }
 
   useEffect(() => {
     setHasUangDiterima(uangDiterima > 0)
@@ -107,7 +115,7 @@ export const CheckoutBayar: React.FC<any & ProductListProp> = (props: any) => {
     let paymentMethod: PaymentMethod = {
       id: incrimentPaymentMethod(),
       type: 1,
-      total: cart.getSubtotal(),
+      total: cart.getSubtotalWithDiscount(),
       cardNumber: ""
     }
 
@@ -134,29 +142,30 @@ export const CheckoutBayar: React.FC<any & ProductListProp> = (props: any) => {
   }
 
   function isCanPay() {
-    return calculatePaymentTotal() >= cart.getSubtotal()
+    return calculatePaymentTotal() >= cart.getSubtotalWithDiscount()
   }
 
   function bayarWithCheck() {
-    let enoughUangDiterima = uangDiterima >= cart.getSubtotal()
+    console.log("bayar with check")
+    let enoughUangDiterima = uangDiterima >= cart.getSubtotalWithDiscount()
     if (isCanPay()) {
       onBayar();
-    } else if (isCash && enoughUangDiterima){
+    } else if (isCash && enoughUangDiterima) {
       addPaymentMethod()
       onBayar()
-    } else if (isCard && enoughUangDiterima && cardNumber.length > 0){
+    } else if (isCard && enoughUangDiterima && cardNumber.length > 0) {
       addPaymentMethod()
       onBayar()
     }
   }
 
-  Mousetrap.bind('enter', function() { bayarWithCheck() }, 'keyup');
+  Mousetrap.bind('enter', function () { bayarWithCheck() }, 'keyup');
 
   return (
     <Card className="rainbow-m-around_large rainbow-p-around_large">
       <div className="rainbow-flex rainbow-flex_column rainbow-align_end">
         <span className="heading2">Total Pembelian</span>
-        <NumberFormat value={cart.getSubtotal()} displayType={'text'} thousandSeparator={true} prefix={'Rp. '} renderText={(value: any) => {
+        <NumberFormat value={cart.getSubtotalWithDiscount()} displayType={'text'} thousandSeparator={true} prefix={'Rp. '} renderText={(value: any) => {
           return (<div className="heading1">{value}</div>)
         }} />
 
@@ -191,13 +200,18 @@ export const CheckoutBayar: React.FC<any & ProductListProp> = (props: any) => {
             prefix={'Rp. '}
             onValueChange={(values) => {
               const { formattedValue, value } = values;
-              setUangDiterima(+value)
+              if (+value <= 0) {
+                setUangDiterima(null)
+              } else {
+                setUangDiterima(+value)
+              }
+
             }}
             renderText={value => <div>{value}</div>}
             customInput={Input}
             getInputRef={bayarInput}
-            onKeyDown={ (it:any) => {
-              if (it.key == 'Enter'){
+            onKeyDown={(it: any) => {
+              if (it.key == 'Enter') {
                 bayarWithCheck();
               }
             }}
@@ -215,8 +229,8 @@ export const CheckoutBayar: React.FC<any & ProductListProp> = (props: any) => {
                   setCardNumber(event.target.value)
                 }}
                 style={inputStyles}
-                onKeyDown={ (it:any) => {
-                  if (it.key == 'Enter'){
+                onKeyDown={(it: any) => {
+                  if (it.key == 'Enter') {
                     bayarWithCheck();
                   }
                 }}
@@ -239,7 +253,11 @@ export const CheckoutBayar: React.FC<any & ProductListProp> = (props: any) => {
             <Button
               variant="brand"
               className="widthmax"
-              onClick={() => { bayarUangPas() }}
+              onClick={() => {
+                if (!isCanPay()){
+                  bayarUangPas()
+                }
+              }}
             >
               Uang Pas
             </Button>

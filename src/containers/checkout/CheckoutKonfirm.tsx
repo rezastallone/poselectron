@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Cart } from '../kasir/Cart';
 import { Button, Card, Lookup } from 'react-rainbow-components';
 import { ProductListProp, ProductListView } from '../kasir/ProductListView';
@@ -28,11 +28,21 @@ export const CheckoutKonfirm: React.FC<any & ProductListProp> = (props: any) => 
 
   const [options, setOptions] = useState(initOptions);
 
+  const cariBarangInput = useRef(null)
+
+  function requestFocusCariBarang(){
+    cariBarangInput.current.focus()
+  }
+
   function checkSearchbarcode(barcode: string) {
     if (barcode.length > 0) {
       searchProduct(barcode)
     }
   }
+
+  useEffect(() => {
+    requestFocusCariBarang()
+  }, [])
 
   function searchProduct(barcode: string) {
     setIsLoading(true);
@@ -77,7 +87,7 @@ export const CheckoutKonfirm: React.FC<any & ProductListProp> = (props: any) => 
         <div className="rainbow-flex rainbow-flex_column rainbow-align_end rainbow-m-bottom_small">
           <div className="rainbow-flex rainbow-flex_column rainbow-align_center">
             <span className="heading1">Total Pembelian</span>
-            <NumberFormat value={cart.getSubtotal()} displayType={'text'} thousandSeparator={true} prefix={'Rp. '} renderText={(value: any) => {
+            <NumberFormat value={cart.getSubtotalWithDiscount()} displayType={'text'} thousandSeparator={true} prefix={'Rp. '} renderText={(value: any) => {
               return (<div className="heading2">{value}</div>)
             }} />
           </div>
@@ -101,11 +111,11 @@ export const CheckoutKonfirm: React.FC<any & ProductListProp> = (props: any) => 
               setIsLoading(true);
               setBarcodeSearch(keyword)
             }}
+            ref={cariBarangInput}
           />
         </div>
 
-        <div
-        >
+        <div className="productList">
           <ProductListView
             productList={cart.getProductList()}
             setCart={(cart: Cart) => {
@@ -115,7 +125,7 @@ export const CheckoutKonfirm: React.FC<any & ProductListProp> = (props: any) => 
         </div>
 
         <div className="rainbow-flex rainbow-flex_column rainbow-align_end">
-          <Button 
+          <Button
             className="rainbow-m-top_small rainbow-m-horizontal_large"
             size="large"
             variant="success"
