@@ -75,7 +75,6 @@ export class Cart {
     return productExist;
   }
 
-
   getTotalProductCount(): number {
     let count = 0
     this.products.forEach((cartProd: CartProd) => {

@@ -46,20 +46,6 @@ export const CheckouView: React.FC<any & ProductListProp> = (props: any) => {
 
       <Switch>
         <Route
-          path={`${path}/checkout/1`}
-        >
-          <CheckoutKonfirm
-            setCart={(cart: Cart) => {
-              setCart(cart)
-            }}
-            cart={cart}
-            onBayar={() => {
-              setPage("2")
-              history.push(`${path}/checkout/2`)
-            }}
-          />
-        </Route>
-        <Route
           path={`${path}/checkout/2`}
         >
           <CheckoutBayar
@@ -88,6 +74,19 @@ export const CheckouView: React.FC<any & ProductListProp> = (props: any) => {
             }}
           >
           </CheckoutStruk>
+        </Route>
+        <Route
+        >
+          <CheckoutKonfirm
+            setCart={(cart: Cart) => {
+              setCart(cart)
+            }}
+            cart={cart}
+            onBayar={() => {
+              setPage("2")
+              history.push(`${path}/checkout/2`)
+            }}
+          />
         </Route>
       </Switch>
     </div>

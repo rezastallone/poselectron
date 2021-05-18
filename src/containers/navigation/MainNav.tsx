@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { MdShoppingCart } from 'react-icons/md';
-import { SidebarItem, Sidebar, VerticalNavigation, VerticalSection, VerticalItem } from 'react-rainbow-components';
+import { MdShoppingCart, MdLocalShipping } from 'react-icons/md';
+import { SidebarItem, Sidebar } from 'react-rainbow-components';
 import { useHistory } from "react-router-dom";
-import { Redirect, Route, Switch, useRouteMatch } from "react-router-dom";
+import { Route, Switch, useRouteMatch, Redirect } from "react-router-dom";
 import styled from 'styled-components';
+import { clearUserAndCabang } from '../../data/auth/AuthData';
 import { KasirView } from '../kasir/KasirView';
+import { ReturnView } from '../return/ReturnView';
 import './MainNav.css'
 
 const StyledContainer = styled.div.attrs(props => {
@@ -21,10 +23,6 @@ export const SimpleVerticalNavigation: React.FC<any> = (props: any) => {
     const [selectedItem, setSelectedItem] = useState("penjualan")
     const history = useHistory();
     let { path, url } = useRouteMatch();
-
-    useEffect(() => {
-        history.push(`${url}penjualan/checkout/1`)
-    }, [])
 
     function handleOnSelect(event: React.MouseEvent<HTMLElement, MouseEvent>, name: string) {
         return setSelectedItem(name)
@@ -43,21 +41,40 @@ export const SimpleVerticalNavigation: React.FC<any> = (props: any) => {
                         className="react-rainbow-admin-app_sidebar-item"
                         name="penjualan"
                         label="Penjualan"
-                        onClick={ () => {
-                            history.push(`${url}penjualan`);
-                     }} />
+                        onClick={() => {
+                            history.push(`${url}/penjualan`);
+                        }} />
+
+                    <SidebarItem
+                        icon={<MdLocalShipping />}
+                        className="react-rainbow-admin-app_sidebar-item"
+                        name="returnbarang"
+                        label="Retur"
+                        onClick={() => {
+                            history.push(`${url}/returnbarang`);
+                        }} /> 
+
+                    <SidebarItem
+                        className="react-rainbow-admin-app_sidebar-item"
+                        name="logout"
+                        label="Logout"
+                        onClick={() => {
+                            clearUserAndCabang();
+                            history.push(`/`);
+                        }} />   
                 </Sidebar>
             </div>
 
             <div className="react-rainbow-admin-app_router-container">
                 <Switch>
-                    <Route path={`${path}penjualan`}>
+                    <Route path={`${path}/returnbarang`}>
+                        <ReturnView />
+                    </Route>
+                    <Route path={`${path}/penjualan`}>
                         <KasirView />
                     </Route>
-                    <Route path={`${path}mymeeting`}>
-                        (
-                            <h1>Second Tab</h1>
-                        )
+                    <Route>
+                        <Redirect to={`${path}/penjualan`} />
                     </Route>
                 </Switch>
             </div>

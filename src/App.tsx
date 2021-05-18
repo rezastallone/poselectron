@@ -1,14 +1,10 @@
 import React from 'react'
 import { render } from 'react-dom'
-import { GlobalStyle } from './styles/GlobalStyle'
-import { remote } from 'electron'
-import path from 'path'
-import { Button, RadioGroup, RenderIf, Application } from 'react-rainbow-components';
-import { HashRouter as Router, Switch, Route } from 'react-router-dom';
-import Greetings from './components/Greetings'
-import { getAsset } from './PathUtil'
-import { KasirView } from './containers/kasir/KasirView'
+import { Application } from 'react-rainbow-components';
+import { HashRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
 import { SimpleVerticalNavigation } from './containers/navigation/MainNav'
+import { Login } from './containers/login/Login'
+import Button from "react-bootstrap/Button";
 
 const mainElement = document.createElement('div')
 mainElement.setAttribute('id', 'root')
@@ -18,7 +14,8 @@ render(
   <Application>
     <Router>
       <Switch>
-        <Route path="/" component={SimpleVerticalNavigation} />
+        <Route path="/home" component={SimpleVerticalNavigation} />
+        <Route path="/" component={Login} />
       </Switch>
     </Router>
   </Application>

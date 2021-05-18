@@ -10,7 +10,7 @@ import { GenericActionView } from '../kasir/GenericActionView';
 import { PaymentMethod } from './CheckoutView';
 import Mousetrap from 'mousetrap';
 
-interface PaymentOptions {
+export interface PickOptions {
   name: string | undefined | number
   label: string | undefined
 }
@@ -37,7 +37,7 @@ export const CheckoutBayar: React.FC<any & ProductListProp> = (props: any) => {
     width: '200px',
   };
 
-  let initPaymentOption: PaymentOptions = {
+  let initPaymentOption: PickOptions = {
     name: 'option 1', label: 'Cash'
   }
 
@@ -60,6 +60,7 @@ export const CheckoutBayar: React.FC<any & ProductListProp> = (props: any) => {
   const [isCash, setIsCash] = useState(true)
 
   const bayarInput = useRef(null)
+
 
   useEffect(() => {
     requestFocusBayarInput();

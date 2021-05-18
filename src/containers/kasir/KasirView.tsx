@@ -1,11 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Product } from '../../data/AppDatabase';
-import { Button, ButtonIcon, RenderIf } from 'react-rainbow-components';
-// import "./style.scss";
-import { Card } from 'react-rainbow-components';
-import { MdShoppingCart } from "react-icons/md";
-import { ProductListView } from './ProductListView';
-import { RupiahTextView } from './RupiahTextView';
 import { Cart } from './Cart';
 import { getApi, productApi } from '../../data/RemoteData';
 import { Response } from '../../data/model/Response';
