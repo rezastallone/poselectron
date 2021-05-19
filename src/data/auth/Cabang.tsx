@@ -1,5 +1,5 @@
 export interface Cabang {
-    id: string 
+    id: number 
     address: string 
     phone: string 
     email: string 

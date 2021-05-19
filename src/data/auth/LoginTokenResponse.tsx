@@ -1,4 +1,5 @@
 export interface LoginTokenResponse {
-    refresh: string;
-    access: string;
+    token: string
+    user: any
+    cabang: any
 }

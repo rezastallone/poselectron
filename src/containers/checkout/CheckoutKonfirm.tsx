@@ -8,7 +8,7 @@ import debounce from 'lodash.debounce';
 import { getApi, productApiFilterBarcode } from '../../data/RemoteData';
 import { Product } from '../../data/AppDatabase';
 import { PickOptions } from './CheckoutBayar';
-import { doLogin } from '../../data/auth/AuthData';
+import { doSales } from '../../data/sales/SalesData';
 
 interface OptionProduct {
   label?: ReactNode
@@ -71,16 +71,18 @@ export const CheckoutKonfirm: React.FC<any & ProductListProp> = (props: any) => 
     }
   }
 
+  function sales(){
+    doSales(() => {
 
-  function login(){
-    console.log('halohalo')
-    doLogin('rezastallone', 'rezastallone')
+    }, () => {
+
+    })
   }
 
   useEffect(() => {
     requestFocusCariBarang()
     // setIsOpen(true)
-    login()
+    sales()
   }, [])
 
   function searchProduct(barcode: string) {

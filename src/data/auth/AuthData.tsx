@@ -1,10 +1,9 @@
-import { postApi } from '../../data/RemoteData';
+import { postApiNoToken } from '../../data/RemoteData';
 import { loginApi } from '../Url';
 import { Cabang } from './Cabang';
 import { LoginTokenRequest } from './LoginTokenRequest';
 import { LoginTokenResponse } from './LoginTokenResponse';
 import { User } from './User';
-var jwt = require('jsonwebtoken');
 
 export function doLogin(username: string, password: string, 
     onSuccess: () => void, onError: (status: string) => void){
@@ -12,12 +11,11 @@ export function doLogin(username: string, password: string,
         username: username,
         password: password
     }
-    postApi<LoginTokenRequest, LoginTokenResponse>(loginApi, reqBody)
-    .then((val) => {
-        let tokenObj = jwt.decode(val.access)
-        
-        storeUser(tokenObj.user)
-        storeCabang(tokenObj.cabang)
+    postApiNoToken<LoginTokenRequest, LoginTokenResponse>(loginApi, reqBody)
+    .then((val: LoginTokenResponse) => {
+        storeAccessToken(val.token)
+        storeUser(val.user)
+        storeCabang(val.cabang)
         onSuccess()
     })
     .catch((response: any) => {
@@ -26,13 +24,24 @@ export function doLogin(username: string, password: string,
     })
 }
 
+export function storeAccessToken(accessToken: string){
+    localStorage.setItem('access', JSON.stringify(accessToken));
+}
+
+export function getAccessToken(): String {
+    let accessTokenStr = localStorage.getItem('access') as string
+    let accessToken: string = JSON.parse(accessTokenStr)
+    return accessToken
+}
+
 export function storeCabang(cabang: Cabang){
     localStorage.setItem('cabang', JSON.stringify(cabang));
 }
 
-export function getCabang(){
+export function getCabang(): Cabang{
     let cabangJson = localStorage.getItem('cabang') as string
     let cabang: Cabang = JSON.parse(cabangJson)
+    return cabang
 }
 
 export function storeUser(user: User){

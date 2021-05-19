@@ -1,7 +1,5 @@
 // export const productApi = "https://fashionstore2021.herokuapp.com/pos/api/v1/product/"
 
-import { postApi } from "./RemoteData"
-
 // export const productApiFilterBarcode = "https://fashionstore2021.herokuapp.com/pos/api/v1/product/?search="
 
 const devUrl = "http://0.0.0.0:8181/"
@@ -9,42 +7,39 @@ const devUrl = "http://0.0.0.0:8181/"
 const prodUrl = "https://fashionstore2021.herokuapp.com/"
 
 function getDomain(){
-    if (process.env.NODE_ENV === 'development'){
-        return devUrl
-    } else {
-        return prodUrl
-    }
+    // if (process.env.NODE_ENV === 'development'){
+    return devUrl
+    // } else {
+    // }
+    // return prodUrl
 }
 
-const posApi = getDomain() + "/pos/api/v1/"
+const posApi = getDomain() + "pos/api/v1/"
 
-export const productApi = postApi + "product/"
+export const productApi = posApi + "product/"
 
-export const productApiFilterBarcode = postApi + "product/?search="
+export const productApiFilterBarcode = posApi + "product/?search="
 
-export const createsalesApi = postApi + "createsales/"
+export const createsalesApi = posApi + "createsales"
 
-export const createFakturApi = postApi + "createfaktur/"
+export const createFakturApi = posApi + "createfaktur"
 
-export const createSalesReturApi = postApi + "createsalesretur/"
+export const createSalesReturApi = posApi + "createsalesretur"
 
-export const createRequestOrderApi = postApi + "createrequestorder/"
+export const createRequestOrderApi = posApi + "createrequestorder"
 
-export const updateStatusRequestOrderApi = postApi + "updatestatusrequestorder/"
+export const updateStatusRequestOrderApi = posApi + "updatestatusrequestorder"
 
-export const createSentOrderApi = postApi + "createsentorder/"
+export const createSentOrderApi = posApi + "createsentorder"
 
-export const updateStatusSentOrderApi = postApi + "updatestatussentorder/"
+export const updateStatusSentOrderApi = posApi + "updatestatussentorder"
 
-export const createReturnFromSentOrderApi = postApi + "createreturnfromsentorder/"
+export const createReturnFromSentOrderApi = posApi + "createreturnfromsentorder"
 
-export const createReturnOrderApi = postApi + "createreturnorder/"
+export const createReturnOrderApi = posApi + "createreturnorder"
 
-export const updateStatusReturnOrderApi = postApi + "updatestatusreturnorder/"
+export const updateStatusReturnOrderApi = posApi + "updatestatusreturnorder"
 
-export const loginApi = getDomain() + "token/"
-
-export const refreshTokenApi = getDomain() + "token/refresh/"
-
+export const loginApi = getDomain() + "api-token-auth/"
 
 
