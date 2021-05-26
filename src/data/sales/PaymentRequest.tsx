@@ -1,6 +1,6 @@
 export interface PaymentRequest {
     amount: number,
-    detail: string | undefined,
+    detail: string | null,
     expiryDate: null,
     paymethod: string
 }

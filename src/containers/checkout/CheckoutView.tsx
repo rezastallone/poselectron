@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import { Cart } from '../kasir/Cart'
 import { Input, Modal } from 'react-rainbow-components';
 import { Path, PathStep } from 'react-rainbow-components';
 import { Route, Switch, useRouteMatch } from "react-router-dom";
@@ -8,6 +7,7 @@ import { useHistory } from "react-router-dom";
 import { CheckoutKonfirm } from './CheckoutKonfirm';
 import { CheckoutBayar } from './CheckoutBayar';
 import { CheckoutStruk } from './CheckoutStruk';
+import { Cart } from '../../data/product/Cart';
 
 export interface CheckoutProps {
   isOpen: boolean,

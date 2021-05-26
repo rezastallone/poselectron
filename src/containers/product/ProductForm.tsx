@@ -27,41 +27,41 @@ const ProductFormView: React.FC<any & InjectedFormProps> = (props: any) => {
   }, [])
 
   const submit = (product: ProductRequest) => {
-    postApi<ProductRequest, ProductRequest>(productApi, product)
-      .then(() => {
-        saveProduct(product.description).then(() => {
-          setProducts([...products, new Product(product.description)])
-          alert("Produk berhasil terjual offline")
-        }
-        )
-        alert("Produk berhasil terjual")
-      }).catch((error: Response) => {
+    // postApi<ProductRequest, ProductRequest>(productApi, product)
+    //   .then(() => {
+    //     saveProduct(product.description).then(() => {
+    //       setProducts([...products, new Product(product.description)])
+    //       alert("Produk berhasil terjual offline")
+    //     }
+    //     )
+    //     alert("Produk berhasil terjual")
+    //   }).catch((error: Response) => {
 
-        if (error.status == undefined) {
-          saveProduct(product.description).then(() => {
-            setProducts([...products, new Product(product.description)])
-            alert("Produk berhasil terjual offline")
-          }
-          )
-        } else {
-          error.json()
-            .then((a: any) => {
-              alert("error " + JSON.stringify(a))
-            })
-        }
-      })
+    //     if (error.status == undefined) {
+    //       saveProduct(product.description).then(() => {
+    //         setProducts([...products, new Product(product.description)])
+    //         alert("Produk berhasil terjual offline")
+    //       }
+    //       )
+    //     } else {
+    //       error.json()
+    //         .then((a: any) => {
+    //           alert("error " + JSON.stringify(a))
+    //         })
+    //     }
+    //   })
   };
 
   function handleKirim() {
-    syncProducts((product: Product) => {
-      let request: ProductRequest = {
-        description: product.description
-      }
-      return postApi<ProductRequest, Response>(productApi, request)
-    })
-      .then(() => {
-        reloadOfflineProducts();
-      })
+    // syncProducts((product: Product) => {
+    //   let request: ProductRequest = {
+    //     description: product.description
+    //   }
+    //   return postApi<ProductRequest, Response>(productApi, request)
+    // })
+    //   .then(() => {
+    //     reloadOfflineProducts();
+    //   })
   }
 
   return getView(handleSubmit, submit, products, handleKirim)

@@ -7,7 +7,7 @@ import { getCabang, getUser } from "../auth/AuthData";
 import { User } from "../auth/User";
 import { Cabang } from "../auth/Cabang";
 
-export function doSales(onSuccess: ()=> void, onError: () => void){
+export function doSales(payment: PaymentRequest, products: ProductRequest[], onSuccess: ()=> void, onError: () => void){
     const cabang: Cabang = getCabang()
     const employee: User = getUser()
 
@@ -15,24 +15,6 @@ export function doSales(onSuccess: ()=> void, onError: () => void){
         onError()
         return
     }
-
-    let payment: PaymentRequest = {
-        amount: 200,
-        detail: 'HP Samsung',
-        expiryDate: null,
-        paymethod: 'CASH'
-    }
-
-    let product: ProductRequest = {
-        product: 1,
-        amount: 200,
-        quantity: 2   
-    }
-
-    let products: ProductRequest[] = []
-    products.push(
-        product
-    )
 
     let createSalesRequest: CreateSalesRequest = {
         amount: 200,
@@ -45,8 +27,9 @@ export function doSales(onSuccess: ()=> void, onError: () => void){
 
     postApi<CreateSalesRequest, CreateSalesRequest>(createsalesApi, createSalesRequest)
     .then((response) => {
-        alert('success ' + response)
+        onSuccess()
     }).catch( (error) => {
-        alert('error ' + error)
+        console.log('error sale' + JSON.stringify(error))
+        // onError()
     })
 }

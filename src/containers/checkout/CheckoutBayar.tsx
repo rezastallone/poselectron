@@ -9,6 +9,8 @@ import './Checkout.css'
 import { GenericActionView } from '../kasir/GenericActionView';
 import { PaymentMethod } from './CheckoutView';
 import Mousetrap from 'mousetrap';
+import { PaymentRequest } from '../../data/sales/PaymentRequest';
+import { doSales } from '../../data/sales/SalesData';
 
 export interface PickOptions {
   name: string | undefined | number
@@ -64,7 +66,14 @@ export const CheckoutBayar: React.FC<any & ProductListProp> = (props: any) => {
 
   useEffect(() => {
     requestFocusBayarInput();
+    Mousetrap.bind('enter', function () { bayarWithCheck() }, 'keyup');
   }, [])
+
+
+  useEffect( () => () => {
+    Mousetrap.unbind('enter', 'keyup');
+  }, [] );
+
 
   useEffect(() => {
     setIsCash(paymentOption.name == "option 1")
@@ -73,15 +82,15 @@ export const CheckoutBayar: React.FC<any & ProductListProp> = (props: any) => {
   }, [paymentOption])
 
   function requestFocusBayarInput() {
-    if (bayarInput != null && bayarInput.current != null) {
-      bayarInput.current.focus();
-    }
+    bayarInput?.current?.focus();
   }
 
   useEffect(() => {
-    setHasUangDiterima(uangDiterima > 0)
-    cart.pembayaran = uangDiterima
-
+    const uangDiterimaConst = uangDiterima
+    if ( uangDiterimaConst != null){
+      setHasUangDiterima(uangDiterimaConst > 0)
+      cart.pembayaran = uangDiterimaConst
+    }
   }, [uangDiterima])
 
   useEffect(() => {
@@ -89,10 +98,15 @@ export const CheckoutBayar: React.FC<any & ProductListProp> = (props: any) => {
   }, [cardNumber])
 
   function addPaymentMethod() {
+    const uangDiterimaConst = uangDiterima
+    if (uangDiterimaConst == null){
+      return
+    }
+    
     let paymentMethod: PaymentMethod = {
       id: incrimentPaymentMethod(),
       type: 1,
-      total: uangDiterima,
+      total: uangDiterimaConst,
       cardNumber: ""
     }
 
@@ -147,21 +161,49 @@ export const CheckoutBayar: React.FC<any & ProductListProp> = (props: any) => {
   }
 
   function bayarWithCheck() {
-    console.log("bayar with check")
-    let enoughUangDiterima = uangDiterima >= cart.getSubtotalWithDiscount()
+
     if (isCanPay()) {
-      onBayar();
-    } else if (isCash && enoughUangDiterima) {
+      createSale()
+    } else if (isCash) {
       addPaymentMethod()
-      onBayar()
-    } else if (isCard && enoughUangDiterima && cardNumber.length > 0) {
+      createSale()
+    } else if (isCard) {
       addPaymentMethod()
-      onBayar()
+      createSale()
     }
   }
 
-  Mousetrap.bind('enter', function () { bayarWithCheck() }, 'keyup');
+  function getPaymetMethodRequest(){
+    if (isCash){
+      return 'CASH'
+    } else {
+      return 'CARD'
+    }
+  }
 
+  function createSale(){
+
+    const payment: PaymentRequest = {
+      amount: calculatePaymentTotal(),
+      detail: null,
+      expiryDate: null,
+      paymethod: getPaymetMethodRequest()
+    }
+
+    const products = cart.getProductRequestList()
+    
+    doSales(
+      payment, 
+      products, 
+      () => {
+        onBayar();
+      }, 
+      () => {
+        alert('error sales')
+      }
+    )
+  }
+  
   return (
     <Card className="rainbow-m-around_large rainbow-p-around_large">
       <div className="rainbow-flex rainbow-flex_column rainbow-align_end">
@@ -307,7 +349,7 @@ export const CheckoutBayar: React.FC<any & ProductListProp> = (props: any) => {
 
         <Button
           variant="brand"
-          onClick={() => { onBayar() }}
+          onClick={() => { bayarWithCheck() }}
           disabled={!isCanPay()}
           size="large"
         >

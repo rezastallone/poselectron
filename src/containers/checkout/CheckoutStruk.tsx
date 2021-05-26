@@ -3,10 +3,11 @@ import { ProductListProp } from '../kasir/ProductListView'
 import { Button, Card, RadioGroup, RenderIf } from 'react-rainbow-components';
 import { PaymentMethod } from './CheckoutView';
 import { getAsset } from '../../PathUtil';
-import { Cart } from '../kasir/Cart';
 import './Checkout.css'
 import NumberFormat from 'react-number-format';
-import { CartProd } from '../kasir/CartProd';
+import { Cart } from '../../data/product/Cart';
+import { CartProd } from '../../data/product/CartProd';
+import { getCabang, getUser } from '../../data/auth/AuthData';
 const { PosPrinter } = require('electron').remote.require("electron-pos-printer");
 
 let dir = getAsset(["img_test.png"])
@@ -262,13 +263,26 @@ export const CheckoutStruk: React.FC<any & ProductListProp & StrukProps> = (prop
         style: `text-align:start;`,
         css: { "font-size": "10px", "font-family": "sans-serif" },
       };
+      
+      let user = getUser()
+
+      let cashierName = `${user.first_name} ${user.last_name}`
 
       const cashier = {
         type: "text",
-        value: "Cashier : ",
+        value: `Cashier : ${cashierName}`,
         style: `text-align:start;`,
         css: { "font-size": "10px", "font-family": "sans-serif" , "padding": "2px 0px 2px" },
       };
+
+      let cabangData = getCabang()
+
+      const cabang = {
+        type: 'text',                                       // 'text' | 'barCode' | 'qrCode' | 'image' | 'table
+        value: `TOKO ${cabangData.name}`,
+        style: `text-align:center;`,
+        css: { "font-weight": "700", "font-size": "18px" }
+      }
 
       const nota = {
         type: "text",
@@ -301,12 +315,7 @@ export const CheckoutStruk: React.FC<any & ProductListProp & StrukProps> = (prop
           style: `text-align:center;`,
           css: { "font-weight": "700", "font-size": "14px" }
         },
-        {
-          type: 'text',                                       // 'text' | 'barCode' | 'qrCode' | 'image' | 'table
-          value: 'TOKO CABANG HAWAI',
-          style: `text-align:center;`,
-          css: { "font-weight": "700", "font-size": "18px" }
-        },
+        cabang,
         now,
         nota,
         cashier,
@@ -360,11 +369,11 @@ function getProductTableHtml(cart: Cart) {
   let productTable: [number, string, number, number, number][] = [];
 
   let no = 1
-  cart.products.forEach((value: CartProd, key: number) => {
-    let produk = value.product.description
+  cart.products.forEach((value: CartProd, key: String, map: Map<String, CartProd>) => {
+    let produk = value.product.actual.description
     let qty = value.count
-    let harga = value.product.harga * 1
-    let jumlah = +value.product.harga * +qty
+    let harga = Number(value.product.actual.hargaJual) * 1
+    let jumlah = Number(+value.product.actual.hargaJual) * +qty
     productTable.push([no++, produk, qty, harga, jumlah])
   })
 

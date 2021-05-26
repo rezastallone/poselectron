@@ -24,21 +24,21 @@ export class AppDatabase extends Dexie {
     }
 }
 
-export class Product {
-  id: number;
-  barcode: number;
-  diskon: number;
-  description: string;
-  harga: number;
+// export class Product {
+//   id: number;
+//   barcode: number;
+//   diskon: number;
+//   description: string;
+//   harga: number;
 
-  constructor(description: string, id?:number, harga?: number){
-    this.description = description;
-    this.barcode = 0;
-    this.diskon = 0;
-    if (harga) this.harga = harga;
-    if (id) this.id = id;
-  }
-}
+//   constructor(description: string, id?:number, harga?: number){
+//     this.description = description;
+//     this.barcode = 0;
+//     this.diskon = 0;
+//     if (harga) this.harga = harga;
+//     if (id) this.id = id;
+//   }
+// }
 
 export var db = new AppDatabase();
 

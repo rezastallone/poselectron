@@ -1,14 +1,17 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Cart } from '../kasir/Cart';
 import { Button, Card, Lookup, Modal, Picklist, Option, RenderIf, Input } from 'react-rainbow-components';
 import { ProductListProp, ProductListView } from '../kasir/ProductListView';
 import './Checkout.css'
 import NumberFormat from 'react-number-format';
 import debounce from 'lodash.debounce';
-import { getApi, productApiFilterBarcode } from '../../data/RemoteData';
-import { Product } from '../../data/AppDatabase';
 import { PickOptions } from './CheckoutBayar';
-import { doSales } from '../../data/sales/SalesData';
+import { GetProductInventoryResponse } from '../../data/inventory/GetProductInventoryResponse';
+import { getProductCabang } from '../../data/product/ProductData';
+import { Productinventory } from '../../data/inventory/ProductInventory';
+import { Cart } from '../../data/product/Cart';
+import { Product } from '../../data/product/Product';
+import { CartProd } from '../../data/product/CartProd';
+import { Promo, PromoEnum } from '../../data/product/Promotion';
 
 interface OptionProduct {
   label?: ReactNode
@@ -16,7 +19,6 @@ interface OptionProduct {
   icon?: ReactNode
   value?: Product
 };
-
 
 export const CheckoutKonfirm: React.FC<any & ProductListProp> = (props: any) => {
 
@@ -34,36 +36,11 @@ export const CheckoutKonfirm: React.FC<any & ProductListProp> = (props: any) => 
 
   const [productDiscount, setProductDiscount] = useState()
 
-  function onDiscountSubmit() {
-    if (productDiscount == undefined) {
-      return
-    }
-    let product: Product = productDiscount
-    if (tipeDiskon.name == "option 1") {
-      console.log("teaweawe")
-      let discount = product.harga - (product.harga * (discountPercent / 100))
-      cart.updateDiscount(discount, product)
-    } else if (tipeDiskon.name == "option 2"
-      && discountCash != null) {
-
-    }
-  }
-
   const cariBarangInput = useRef(null)
 
   function requestFocusCariBarang() {
-    cariBarangInput.current.focus()
+    cariBarangInput?.current?.focus() 
   }
-
-  let tipeDiskonOptionInit: PickOptions = {
-    name: 'option 1', label: 'Persen'
-  }
-
-  const [tipeDiskon, setTipeDiskon] = useState(tipeDiskonOptionInit)
-
-  const [discountPercent, setDiscountPercent] = useState()
-
-  const [discountCash, setDiscountCash] = useState()
 
   function checkSearchbarcode(barcode: string) {
     if (barcode.length > 0) {
@@ -71,42 +48,34 @@ export const CheckoutKonfirm: React.FC<any & ProductListProp> = (props: any) => 
     }
   }
 
-  function sales(){
-    doSales(() => {
-
-    }, () => {
-
-    })
-  }
-
   useEffect(() => {
     requestFocusCariBarang()
-    // setIsOpen(true)
-    sales()
   }, [])
 
   function searchProduct(barcode: string) {
     setIsLoading(true);
-    getApi<string, Response<Product>>(productApiFilterBarcode + barcode)
-      .then((response: Response<Product>) => {
+    getProductCabang(
+      barcode,
+      (response: GetProductInventoryResponse) => {
         setIsLoading(false);
         if (response.results.length > 0) {
           let optionProducts: OptionProduct[] = []
-          response.results.map((item: Product) => {
+          response.results.map((item: Productinventory) => {
             optionProducts.push({
-              label: item.description,
-              description: item.harga,
-              value: item
+              label: item.product.description,
+              description: item.product.hargaJual,
+              value: new Product(item.product, -1)
             })
           })
           setOptions(optionProducts)
         } else {
           setOptions([])
         }
-      }).catch((e: any) => {
+      },
+      (errorResp: Response) => {
         setIsLoading(false);
-        console.error(" error " + e)
-      })
+      } 
+    )
   }
 
   const debouncedSave = useCallback(
@@ -164,7 +133,7 @@ export const CheckoutKonfirm: React.FC<any & ProductListProp> = (props: any) => 
           <ProductListView
             setProductDiscount={setProductDiscount}
             setIsOpen={setIsOpen}
-            productList={cart.getProductList()}
+            productList={cart.getCartProdList()}
             setCart={(cart: Cart) => {
               setCart(cart);
             }}
@@ -177,6 +146,7 @@ export const CheckoutKonfirm: React.FC<any & ProductListProp> = (props: any) => 
             type="text"
             className="rainbow-p-around_medium"
             style={containerStyles}
+
           // value={discountPercent}
           // onChange={(event: any) => {
           //   let value = event.target.value
@@ -210,14 +180,10 @@ export const CheckoutKonfirm: React.FC<any & ProductListProp> = (props: any) => 
 
         <InputDiscountModalView
           isOpen={isOpen}
-          setIsOpen={setIsOpen}
-          discountPercent={discountPercent}
-          setDiscountPercent={setDiscountPercent}
-          discountCash={discountCash}
-          setDiscountCash={setDiscountCash}
-          tipeDiskon={tipeDiskon}
-          setTipeDiskon={setTipeDiskon}
-          onDiscountSubmit={onDiscountSubmit}
+          setIsOpen={(isOpenModal: boolean) => setIsOpen(isOpenModal)}
+          cart={cart}
+          setCart={setCart}
+          productDiscount={productDiscount}
         />
 
       </div>
@@ -227,18 +193,25 @@ export const CheckoutKonfirm: React.FC<any & ProductListProp> = (props: any) => 
 
 export const InputDiscountModalView: React.FC<any> = (props: any) => {
 
-  const { isOpen, setIsOpen,
-    discountPercent, setDiscountPercent,
-    discountCash, setDiscountCash,
-    tipeDiskon, setTipeDiskon,
-    onDiscountSubmit } = props
+  let tipeDiskonOptionInit: PickOptions = {
+    name: 'option 1', label: 'Persen'
+  }
+
+  const [tipeDiskon, setTipeDiskon] = useState(tipeDiskonOptionInit)
+
+  const [discountPercent, setDiscountPercent] = useState()
+
+  const [discountCash, setDiscountCash] = useState()
+
+  const {isOpen, setIsOpen, productDiscount, cart, setCart } = props
 
   const [errorPercent, setErrorPercent] = useState("")
 
   const [errorCash, setErrorCash] = useState("")
 
   useEffect(() => {
-    if (discountCash == null || discountCash.length == 0) {
+    const discCash = discountCash
+    if (discCash == undefined || discCash.length == 0) {
       setErrorCash("Tidak Boleh Kosong")
     } else {
       setErrorCash("")
@@ -246,7 +219,8 @@ export const InputDiscountModalView: React.FC<any> = (props: any) => {
   }, [discountCash])
 
   useEffect(() => {
-    if (discountPercent == null || discountPercent.length == 0) {
+    const discPercent = discountPercent
+    if (discPercent == undefined || discPercent.length == 0) {
       setErrorPercent("Diskon antara 1 - 100%")
     } else {
       setErrorPercent("")
@@ -281,6 +255,47 @@ export const InputDiscountModalView: React.FC<any> = (props: any) => {
   const containerStyles = {
     width: 300,
   };
+
+  function onDiscountSubmit() {
+    const prodDiscToUpdate: Product = productDiscount
+    const cartToUpdate: Cart = cart
+    const discPercent = discountPercent
+    const discCash = discountCash
+  
+    if (
+      prodDiscToUpdate == undefined ||
+      cartToUpdate == undefined
+      ) {
+      return
+    }
+
+    let promo
+    if (tipeDiskon.name == "option 1"){
+      if (discPercent == undefined){
+        return
+      }
+      promo = new Promo(
+          PromoEnum.PERCENTAGE,
+          Number(discPercent)
+        )
+    } else {
+      if (discCash == undefined){
+        return
+      }
+      promo = new Promo(
+        PromoEnum.CASH,
+        Number(discCash)
+      )
+    }
+
+    cartToUpdate.updateDiscount(
+      promo,
+      prodDiscToUpdate
+    )
+
+    setCart(new Cart(cartToUpdate.products))
+  }
+
 
   return (
     <div>

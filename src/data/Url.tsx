@@ -8,10 +8,10 @@ const prodUrl = "https://fashionstore2021.herokuapp.com/"
 
 function getDomain(){
     // if (process.env.NODE_ENV === 'development'){
-    return devUrl
+    // return devUrl
     // } else {
     // }
-    // return prodUrl
+    return prodUrl
 }
 
 const posApi = getDomain() + "pos/api/v1/"
@@ -39,6 +39,8 @@ export const createReturnFromSentOrderApi = posApi + "createreturnfromsentorder"
 export const createReturnOrderApi = posApi + "createreturnorder"
 
 export const updateStatusReturnOrderApi = posApi + "updatestatusreturnorder"
+
+export const getProductInventoryApi = posApi + "productinventory"
 
 export const loginApi = getDomain() + "api-token-auth/"
 

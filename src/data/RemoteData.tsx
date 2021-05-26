@@ -4,15 +4,6 @@ export interface ProductRequest {
   description: string
 }
 
-export const productApi = "https://fashionstore2021.herokuapp.com/pos/api/v1/product/"
-
-export const productApiFilterBarcode = "https://fashionstore2021.herokuapp.com/pos/api/v1/product/?search="
-
-// export const productApi = "http://0.0.0.0:8181/pos/api/v1/product/"
-
-// export const productApiFilterBarcode = "http://0.0.0.0:8181/pos/api/v1/product/?search="
-
-
 export function postApi<Param, Return>(url: string, body: Param): Promise<Return> {
   let accessToken = getAccessToken()
 
@@ -22,7 +13,7 @@ export function postApi<Param, Return>(url: string, body: Param): Promise<Return
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
-      'Authorization': 'Token ' + accessToken, 
+      'Authorization': 'Token ' + accessToken
     }
   }
   return api<Param, Return>(url, requestInit)
@@ -58,6 +49,7 @@ function api<Param, Return>(url: string, requestInit: RequestInit): Promise<Retu
   return fetch(url, requestInit)
     .then(response => {
       if (!response.ok) {
+        console.log('error not okay ' + JSON.stringify(response))
         throw response
       }
       return response.json()
